@@ -7,3 +7,6 @@ libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.4.2-RC
 libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.4.2-RC1" % Test
 
 testFrameworks += new TestFramework("weaver.framework.TestFramework")
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+
