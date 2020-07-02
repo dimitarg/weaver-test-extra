@@ -13,6 +13,7 @@ githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}
 githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.BINTRAY_PASS }}"
 
 bintrayRepository in ThisBuild := "dimitarg-oss"
+licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
 githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
   commands = List("bash <(curl -s https://codecov.io/bash)")
