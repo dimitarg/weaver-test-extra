@@ -12,6 +12,10 @@ githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN 
 githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
   commands = List("bash <(curl -s https://codecov.io/bash)")
 ))
+
+githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
+  List("git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"")
+))
 githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release with-defaults")))
 
 githubOwner in ThisBuild := "dimitarg"

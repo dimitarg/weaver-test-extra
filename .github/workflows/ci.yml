@@ -163,4 +163,6 @@ jobs:
           name: target-${{ matrix.os }}-${{ matrix.java }}-project_target
           path: project/target
 
+      - run: git config user.name "Github Actions (dimitarg/weaver-test-extra)"
+
       - run: sbt ++${{ matrix.scala }} 'release with-defaults'
