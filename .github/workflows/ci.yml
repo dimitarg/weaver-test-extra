@@ -163,5 +163,4 @@ jobs:
           name: target-${{ matrix.os }}-${{ matrix.java }}-project_target
           path: project/target
 
-      - name: Publish project
-        run: sbt ++${{ matrix.scala }} +publish
+      - run: sbt ++${{ matrix.scala }} 'release with-defaults'
