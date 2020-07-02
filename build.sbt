@@ -2,9 +2,12 @@ name := "weaver-test-playground"
 
 version := "0.1"
 
-scalaVersion := "2.13.3"
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.4.2-RC1" % Test
-libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.4.2-RC1" % Test
+scalaVersion in ThisBuild := "2.13.3"
+crossScalaVersions in ThisBuild := Seq("2.13.3")
+githubWorkflowScalaVersions in ThisBuild := Seq("2.13.3")
+
+libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.4.2-RC1"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.4.2-RC1"
 
 testFrameworks += new TestFramework("weaver.framework.TestFramework")
 

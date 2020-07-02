@@ -2,7 +2,7 @@ package weaver.extra.res
 
 import cats.implicits._
 import cats.effect.{ContextShift, IO, Timer}
-import weaver.{Expect, Expectations, Log, SingleExpectation, SourceLocation}
+import weaver.{Expect, Expectations, SingleExpectation, SourceLocation}
 
 import scala.concurrent.ExecutionContext
 
