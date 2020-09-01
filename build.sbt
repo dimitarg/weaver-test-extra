@@ -12,7 +12,7 @@ githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN 
 githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}"
 githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.BINTRAY_PASS }}"
 
-bintrayRepository in ThisBuild := "dimitarg-oss"
+// bintrayRepository in ThisBuild := "dimitarg-oss"
 licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
 githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
