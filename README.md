@@ -17,7 +17,7 @@ resolvers += Resolver.bintrayRepo("dimitarg", "maven")
 2. Add the following dependency to your build
 
 ```
-"io.github.dimitarg"  %%  "weaver-test-extra"     % "0.1" % "test"
+"io.github.dimitarg"  %%  "weaver-test-extra"     % <latestVersion> % "test"
 ```
 
 3. (Not specific to this library, this is a WeaverTest requirement). If you haven't already,
@@ -163,13 +163,13 @@ override def sharedResource: Resource[IO, SharedResource] = for {
 ```
 
 4. If we have a function which knows how to go from `ParentResource => ChildResource`, and we have a 
-stream `Stream[IO, RTest[ChildResource]]`, we can get a stream `Stream[IO, ParentResource]` using the `local` function provided by the
+stream `Stream[IO, RTest[ChildResource]]`, we can get a stream `Stream[IO, RTest[ParentResource]]` using the `local` function provided by the
 `weaver-test-extra` library:
 
 ```scala
 val fooTests: Stream[IO, RTest[SharedResource]] =
     Stream.emits(FooSpec.tests)
-      .local[SharedResource](_.flooble) // goes Stream[IO, Flooble] => Stream[IO, SharedResource]
+      .local[SharedResource](_.flooble) // goes Stream[IO, RTest[Flooble]] => Stream[IO, RTest[SharedResource]]
 ```
 
 This lets us promote a "child" test stream to a test stream using the parent shared resource.
