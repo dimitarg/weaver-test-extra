@@ -166,6 +166,51 @@ override def sharedResource: Resource[IO, SharedResource] = for {
 stream `Stream[IO, RTest[ChildResource]]`, we can get a stream `Stream[IO, ParentResource]` using the `local` function provided by the
 `weaver-test-extra` library:
 
+```scala
+val fooTests: Stream[IO, RTest[SharedResource]] =
+    Stream.emits(FooSpec.tests)
+      .local[SharedResource](_.flooble) // goes Stream[IO, Flooble] => Stream[IO, SharedResource]
+```
+
+This lets us promote a "child" test stream to a test stream using the parent shared resource.
+
+5. Using the `local` function, we can compose the values provided by the child suites into a stream of tests of the shared resource:
+
+```scala
+ val fooTests: Stream[IO, RTest[SharedResource]] =
+    Stream.emits(FooSpec.tests)
+      .local[SharedResource](_.flooble)
+
+  val barTests: Stream[IO, RTest[SharedResource]] =
+     Stream.emits(
+      List(BarSpec.test1, BarSpec.test2)
+  ).local[SharedResource](_.thingie)
+
+  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
+    fooTests ++ barTests
+```
+
+6. Running the test yields the following output:
+
+```
+com.example.http4splayground.SharedResourceSuite
+acquiring shared resource
+hey, testing thingie thingies
+got thingie: Thingie()
++ the flooble floobles
++ the thingie thingies
++ another thingie test
+
+Execution took 58ms
+3 tests, 3 passed
+All tests in com.example.http4splayground.SharedResourceSuite passed
+```
+
+# Internals
+
+## `local`
+
+The `local` function is defined as follows:
 
 ```scala
 implicit class RTestStreamOps[R, A](private val xs: Stream[IO, A]) {
@@ -198,19 +243,13 @@ Which is just a function `R => IO[Expectations])` polymorhic in `R`.
 
 So, all this is a really long way of saying `local` uses the fact that functions form a contravariant functor on their input.
 
-
-5. Using the `local` function, we can compose the values provided by the child suites into a stream of tests of the shared resource:
+Indeed, the `Contravariant` instance for `RTest` is just the contravariant instance for functions:
 
 ```scala
- val fooTests: Stream[IO, RTest[SharedResource]] =
-    Stream.emits(FooSpec.tests)
-      .local[SharedResource](_.flooble)
-
-  val barTests: Stream[IO, RTest[SharedResource]] =
-     Stream.emits(
-      List(BarSpec.test1, BarSpec.test2)
-  ).local[SharedResource](_.thingie)
-
-  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
-    fooTests ++ barTests
+object RTest {
+  implicit val contravariantForRTest: Contravariant[RTest[*]] = new Contravariant[RTest] {
+    override def contramap[A, B](fa: RTest[A])(f: B => A): RTest[B] = RTest(
+      fa.name, (log, r) => fa.run(log, f(r))
+    )
+  }
 ```
