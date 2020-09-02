@@ -1,8 +1,6 @@
 name := "weaver-test-extra"
 organization in ThisBuild := "io.github.dimitarg"
 
-version := "0.1"
-
 scalaVersion in ThisBuild := "2.13.3"
 crossScalaVersions in ThisBuild := Seq("2.13.3")
 
@@ -12,7 +10,6 @@ githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN 
 githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}"
 githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.BINTRAY_PASS }}"
 
-// bintrayRepository in ThisBuild := "dimitarg-oss"
 licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
 githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
