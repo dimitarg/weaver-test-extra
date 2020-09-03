@@ -1,4 +1,4 @@
-package weaver.extra.res
+package weaver.pure
 
 import cats.Contravariant
 import cats.effect.IO

@@ -2,9 +2,9 @@ package com.dimitarg.example
 
 import fs2.Stream
 import cats.effect.{IO, Resource}
-import weaver.extra.res._
+import weaver.pure._
 
-object ExampleResSuite extends PureResourceSuite {
+object ExampleResSuite extends ResourceSuite {
   override type R = SharedResource
 
   override def sharedResource: Resource[IO, SharedResource] = for {
@@ -16,7 +16,7 @@ object ExampleResSuite extends PureResourceSuite {
 
   override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
       Stream(
-        test[SharedResource]("some test")(res => {
+        rTest[SharedResource]("some test")(res => {
         expect(res.bar.value == 42)
       })) ++
       Stream.emits(FooSuite.tests)

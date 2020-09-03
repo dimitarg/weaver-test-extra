@@ -2,13 +2,12 @@ package com.dimitarg.example
 
 import cats.effect.IO
 import fs2.Stream
-import weaver.extra.res._
+import weaver.pure._
 
-object BarSuite extends Tests {
+object BarSuite {
   val tests: Stream[IO, RTest[BarResource]] = Stream(
-    test("a barsuite test") { r =>
+    rTest("a barsuite test") { r =>
       expect(r.value == 42)
     }
   )
-
 }

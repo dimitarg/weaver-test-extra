@@ -1,10 +1,10 @@
-package weaver.extra.res
+package weaver.pure
 
 import cats.effect.{IO, Resource}
 import fs2.Stream
 import weaver.{PureIOSuite, Test, TestOutcome}
 
-trait PureResourceSuite extends PureIOSuite {
+trait ResourceSuite extends PureIOSuite {
   type R
   def sharedResource : Resource[IO, R]
 
