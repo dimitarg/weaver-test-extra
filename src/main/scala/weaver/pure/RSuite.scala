@@ -4,8 +4,10 @@ import cats.effect.{IO, Resource}
 import fs2.Stream
 import weaver.{PureIOSuite, Test, TestOutcome}
 
-trait ResourceSuite extends PureIOSuite {
+trait RSuite extends PureIOSuite {
+
   type R
+  
   def sharedResource : Resource[IO, R]
 
   def suitesStream: Stream[IO, RTest[R]]
@@ -17,7 +19,7 @@ trait ResourceSuite extends PureIOSuite {
     val mkResource = Stream.resource(sharedResource)
     mkResource.flatMap { res =>
       suitesStream.parEvalMap(parallism) { test =>
-        Test(test.name, log => test.run(log, res))
+        Test(test.name, test.run(res))
       }
     }
   }

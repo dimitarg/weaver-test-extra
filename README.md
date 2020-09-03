@@ -4,43 +4,28 @@ Provides extra functionality to https://github.com/disneystreaming/weaver-test
 
 Currently, the following functionality is provided
 
-- `weaver.pure` - Provides ready-to-use pure interface for registering tests, as opposed
-to registering tests via a side effect. In addition, allows to reuse a Resource across multiple test suites
-in a referentially transparent manner.
+## package `weaver.pure`
+
+Provides minimal, ready-to-use API to `weaver-test`, that does not perform side effects
+in order to compute the tests in a test suite (i.e. "register" a test).
+
 
 # Why this library exists
 
-`weaver-test` is an excellent library which makes the observation that the **definition** of a test is just a value:
+`weaver-test` is a very good testing library, fundamentally because tests in
+`weaver-test` are values.
 
-(roughly, minus explicit cruft)
-
-```scala
-object Test {
-
-  def apply[F[_]](name: String, f: Log[F] => F[Expectations]): F[TestOutcome] = ...
-}
-```
-
-That is to say, a test has a name, can potentially access a `weaver-test` log,
-returns `Expectations`, and does so in some effect type `F`.
-
-However, the default API provided for **registering** tests is side-effectful:
+However, default ready-to-use APIs in `weaver-test` assume that one can "register a test" with the framework, which is a side effect i.e. takes the form
 
 ```scala
-def registerTest(name: String)(f: Res => F[TestOutcome]): Unit = ...
+def register(test: Test): Unit
 ```
 
-`weaver-test-extra` goes an extra mile by providing a small API which doesn't talk about registering tests;
-instead, the user is in charge of returning the tests to be ran in a suite. Therefore, your  whole test codebase becomes 
-free of side effects.
+If we instead assume that it's always the suite which assembles and returns the `fs2.Stream` of
+tests to be ran, we can reap the benefits of all our (test) code being referentially transparent.
 
-One consequence of this is that sharing a suite-wide resource between multiple test modules (files) means
-just passing function parameters - as per https://youtu.be/aeGQiq4HTTA?t=1814
-
-
-`weaver-test-extra` is an addition to `weaver-test` that I find useful when writing tests. It can be used alongside the
-standard APIs exposed by `weaver-test`.
-
+In practice this is achieved in just a few lines of code. This library contains little code
+aside from documentation.
 
 # Getting started 
 
@@ -72,22 +57,20 @@ add the following to your project settings
 A test is defined as follows:
 
 ```scala
-final case class RTest[R](name: String, run: (Log[IO], R) => IO[Expectations])
+final case class RTest[R](name: String, run: R => IO[Expectations])
 ```
 
-That is to say, a test has a name, and is a function which has access to a Log and
-some "environment" `R` (`R` stands for `Resource`, more on that later), returns
-`Expectations` and is allowed to perform `IO` while doing so.
+That is to say, a test has a name, and is a function which has access to
+some input parameter (environment, shared resource, etc.) `R`, returns
+`Expectations` as the test result, and is allowed to perform `IO` while doing so.
 
-Tests that do not require an environment have a type `RTest[Unit]`.
+Tests that do not require an environment have the type `RTest[Unit]`.
 
 ## Creating an `RTest`
 
 ... can be done by constructing an instance of the above data type.
-There are convenience functions `test`, `rTest`, `loggedTest` and `loggedRTest` for doing so
-in the module `weaver.test.pure`.
-
-We will see example usage of each of these below.
+There are convenience shorthand functions `test` and `rTest` which construct a test that does not,
+and does require an environment.
 
 # Usage example
 
@@ -96,20 +79,17 @@ We will see example usage of each of these below.
 Here is a simple suite. You create one by extending `weaver.pure.Suite`, which requires returning a `fs2.Stream` of tests:
 
 ```
+import fs2.Stream
 import weaver.pure._
 import cats.effect.IO
 import java.time.Instant
 
 object ExampleSuite extends Suite {
 
-  override def suitesStream: fs2.Stream[IO,RTest[Unit]] = tests(
+  override def suitesStream: fs2.Stream[IO,RTest[Unit]] = Stream(
       test("a pure test") {
           val x = 1
           expect(x == 1)
-      },
-      test("another pure test") {
-        val xs = List()
-        expect(xs == List())
       },
       test("an effectful test") {
         for {
@@ -124,16 +104,13 @@ object ExampleSuite extends Suite {
 This is pretty much 1:1 with what you'd write in `weaver-test` vanilla; with the important distinction
 that the function `test` returns a value of `RTest`, instead of performing a side effect to register the test in some internal mutable state.
 
-The outer function `tests` just constructs an `fs2.Stream` from a bunch of elements (in this case tests). It's just an alias for
-`fs2.Stream.apply`.
-
-Couple of notes
+Couple of notes:
 
 - The type of `suitesStream` is `fs2.Stream[IO,RTest[Unit]]` because we require no 
 environment / shared test resource. If that was not the case, we'd extend `ResourceSuite` instead
 (see below)
 
-The two pure tests above typecheck because there is an implicit conversion in scope
+- `"a pure test"` typechecks because there is an implicit conversion in scope
 `Expectations => IO[Expectations]`. This is done so you don't have to write
 ```scala
 expect(foo == bar).pure[IO]
@@ -188,8 +165,8 @@ Let's break it down.
 
 1. To share a resource across all tests in a Suite, you extend `ResourceSuite`.
 2. ResourceSuite is polymorphic on the resource type. In this case, `override type R = List[String]`, the list of lines in a file.
-3. By implementing `def sharedResource: Resource[IO, R]`, you specify how to acquire (and release)
-the shared resource.
-4. You create a test that requres access to some resource / environment by using `rTest` instead of `test`.
-5. The shared resource will be acquired once before running all the tests, and will be released
-when the tests are ran (regardless of their outcome).
+3. By implementing `def sharedResource: Resource[IO, R]`, you describe the suite-shared resource, which will be allocated once, used by all the tests, and disposed of, as in `cats.effect.Resource.use`.
+4. You create a test that requres access to some resource / environment (i.e. input parameter) by using `rTest` instead of `test`.
+
+
+No magic.

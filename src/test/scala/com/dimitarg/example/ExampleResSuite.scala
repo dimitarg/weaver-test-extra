@@ -1,12 +1,13 @@
 package com.dimitarg.example
 
+import fs2.Stream
 import weaver.pure._
 import cats.effect.{IO, Resource}
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 import cats.effect.Blocker
 
-object ExampleResSuite extends ResourceSuite {
+object ExampleResSuite extends RSuite {
 
   override type R = List[String]
 
@@ -26,7 +27,7 @@ object ExampleResSuite extends ResourceSuite {
     )
   } yield lines
 
-  override def suitesStream: fs2.Stream[IO,RTest[R]] = tests(
+  override def suitesStream: fs2.Stream[IO,RTest[R]] = Stream(
       rTest("the file has one line") { lines =>
         expect(lines.size == 1)
       },
