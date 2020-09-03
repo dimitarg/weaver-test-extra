@@ -1,4 +1,4 @@
-package com.dimitarg.example
+package com.dimitarg.example.sharedres
 
 final case class SharedResource(foo: FooResource, bar: BarResource)
 final case class FooResource()

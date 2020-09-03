@@ -1,4 +1,4 @@
-package com.dimitarg.example
+package com.dimitarg.example.sharedres
 
 import cats.effect.IO
 import fs2.Stream

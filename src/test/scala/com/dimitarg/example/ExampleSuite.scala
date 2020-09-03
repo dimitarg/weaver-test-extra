@@ -2,6 +2,7 @@ package com.dimitarg.example
 
 import weaver.pure._
 import cats.effect.IO
+import java.time.Instant
 
 object ExampleSuite extends Suite {
 
@@ -13,6 +14,12 @@ object ExampleSuite extends Suite {
       test("another pure test") {
         val xs = List()
         expect(xs == List())
+      },
+      test("an effectful test") {
+        for {
+          now <- IO(Instant.now())
+          _ <- IO(println(s"current time: $now"))
+        } yield expect(1 == 1)
       }
   )
 }
