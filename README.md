@@ -12,10 +12,7 @@ in order to compute the tests in a test suite (i.e. "register" a test).
 
 # Why this library exists
 
-`weaver-test` is a very good testing library, fundamentally because tests in
-`weaver-test` are values.
-
-However, default ready-to-use APIs in `weaver-test` assume that one can "register a test" with the framework, which is a side effect i.e. takes the form
+Registration of a test to be ran by vanilla `weaver-test` rouglhy takes the form:
 
 ```scala
 def register(test: Test): Unit
@@ -115,7 +112,7 @@ environment / shared test resource. If that was not the case, we'd extend `Resou
 ```scala
 expect(foo == bar).pure[IO]
 ```
-over and over.
+over and over. (This is the same behaviour as vanilla `weaver-test`)
 
 ## Suite of tests that share a common resource
 
@@ -170,3 +167,103 @@ Let's break it down.
 
 
 No magic.
+
+## Using subsets of a shared resource across multiple modules
+
+Imagine the following use case
+
+- You have a module of database tests requiring, say `transactor: Transactor[IO]`
+- You have a module of http integration tests requiring, say `client: Client[IO]`
+- You have a module of end-to-end tests, requiring an access to a multitude of resources,
+say
+```scala
+final case class TestResources(transactor: Transactor[IO], client: Client[IO], config: Config, ....)
+```
+
+Furthermore, you want to initialise the resources common to multiple test modules (in this example `Transactor[IO]` and `Client[IO]`) only once.
+
+A way to achieve this in this example is to
+- Construct a value `dbTests: Stream[IO, RTest[Transactor[IO]]]` for the database tests
+- Construct a value `httpTests: Stream[IO, RTest[Client[IO]]]` for the http tests
+- Construct a value `e2eTests: Stream[IO, RTest[TestResources]]` for the end to end tests
+- Combine the resulting streams into a single stream with type `Stream[IO, RTest[TestResources]]`,
+using the `using` function
+
+### `using`
+
+The function is defined as follows
+
+```scala
+implicit class RTestStreamOps[R, A](private val xs: Stream[IO, A]) {
+    def using[R1](f: R1 => R)(implicit ev: A =:= RTest[R]): Stream[IO, RTest[R1]] =
+      xs.map(x => Contravariant[RTest].contramap(x)(f))
+  }
+```
+
+Minus the implicit cruft this becomes
+
+```scala
+  def using[ParentRes](f: ParentRes => ChildRes)(xs: Stream[IO, RTest[ChildRes]]): Stream[IO, RTest[ParentRes]] =
+      xs.map(x => Contravariant[RTest].contramap(x)(f))
+  }
+```
+
+That is to say, we can go `Stream[IO, RTest[ChildRes]] => Stream[IO, RTest[ParentRes]]`, as long as we know how to go `ParentRes => ChildRes`. 
+
+This works because `RTest` is `Contravariant` in `R`
+
+### Example
+
+```scala
+import fs2.Stream
+import cats.effect.{IO, Resource}
+import weaver.pure._
+
+
+final case class FooResource()
+final case class BarResource(value: Int)
+final case class SharedResource(foo: FooResource, bar: BarResource)
+
+object FooSuite {
+  val all: Stream[IO, RTest[FooResource]] = Stream(
+    rTest("the foo foos") { foo =>
+        expect(foo == FooResource())
+    }
+  )
+}
+
+object BarSuite {
+  val all: Stream[IO, RTest[BarResource]] = Stream(
+    rTest("a barsuite test") { r =>
+      expect(r.value == 42)
+    }
+  )
+}
+
+object ExampleSharedResSuite extends RSuite {
+  override type R = SharedResource
+
+  override def sharedResource: Resource[IO, SharedResource] = for {
+    _ <- Resource.liftF(IO.pure(println("acquiring shared resource")))
+    res <- Resource.liftF(IO.pure(
+      SharedResource(FooResource(), BarResource(42))
+    ))
+  } yield res
+
+  val all: Stream[IO, RTest[SharedResource]] = Stream(
+    rTest[SharedResource]("some test")(res => {
+      expect(res.bar.value == 42)
+  }))
+
+  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
+      all ++
+      FooSuite.all
+        .using[SharedResource](_.foo) ++
+      BarSuite.all
+        .using[SharedResource](_.bar)
+}
+```
+
+Notes:
+- `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `Stream[IO, RTest[A]]` values. This of course also means they would not
+be auto-discoverable or runnable on their own.

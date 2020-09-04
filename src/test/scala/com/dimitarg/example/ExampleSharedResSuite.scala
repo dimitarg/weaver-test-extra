@@ -10,10 +10,10 @@ final case class BarResource(value: Int)
 final case class SharedResource(foo: FooResource, bar: BarResource)
 
 object FooSuite {
+
   val all: Stream[IO, RTest[FooResource]] = Stream(
     rTest("the foo foos") { foo =>
         expect(foo == FooResource())
-
     }
   )
 }
@@ -26,7 +26,6 @@ object BarSuite {
   )
 }
 
-
 object ExampleSharedResSuite extends RSuite {
   override type R = SharedResource
 
@@ -37,13 +36,15 @@ object ExampleSharedResSuite extends RSuite {
     ))
   } yield res
 
+  val all: Stream[IO, RTest[SharedResource]] = Stream(
+    rTest[SharedResource]("some test")(res => {
+      expect(res.bar.value == 42)
+  }))
+
   override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
-      Stream(
-        rTest[SharedResource]("some test")(res => {
-        expect(res.bar.value == 42)
-      })) ++
+      all ++
       FooSuite.all
         .using[SharedResource](_.foo) ++
       BarSuite.all
-        .using(_.bar)
+        .using[SharedResource](_.bar)
 }
