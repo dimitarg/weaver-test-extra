@@ -4,7 +4,25 @@ Provides extra functionality to https://github.com/disneystreaming/weaver-test
 
 Currently, the following functionality is provided
 
-- `weaver.extra.res` - Ability to share `cats.effect.Resource`, across one or multiple test suites, in a referentially transparent manner.
+## package `weaver.pure`
+
+Provides minimal, ready-to-use API to `weaver-test`, that does not perform side effects
+in order to compute the tests in a test suite (i.e. "register" a test).
+
+
+# Why this library exists
+
+Registration of a test to be ran by vanilla `weaver-test` rouglhy takes the form:
+
+```scala
+def register(test: Test): Unit
+```
+
+If we instead assume that it's always the suite which assembles and returns the `fs2.Stream` of
+tests to be ran, we can reap the benefits of all our (test) code being referentially transparent.
+
+In practice this is achieved in just a few lines of code. This library contains little code
+aside from documentation.
 
 # Getting started 
 
@@ -27,229 +45,224 @@ add the following to your project settings
     testFrameworks += new TestFramework("weaver.framework.TestFramework")
 ```
 
+# Base concepts
+
+, of which there is just one.
+
+## RTest
+
+A test is defined as follows:
+
+```scala
+final case class RTest[R](name: String, run: R => IO[Expectations])
+```
+
+That is to say, a test has a name, and is a function which has access to
+some input parameter (environment, shared resource, etc.) `R`, returns
+`Expectations` as the test result, and is allowed to perform `IO` while doing so.
+
+Tests that do not require an environment have the type `RTest[Unit]`.
+
+## Creating an `RTest`
+
+... can be done by constructing an instance of the above data type.
+There are convenience shorthand functions `test` and `rTest` which construct a test that does not,
+and does require an environment.
+
 # Usage example
 
-## The problem
+## Hello world
 
-The problem we are trying to solve is to acquire a shared resource only once, (e.g. due to performance considerations), and reuse that resource in multiple test suites.
-
-We want to achieve this under the following constraints:
-
-- All the resulting code must be pure. That is, we will not sacrifice referential transparency or local reasoning in order to pass resources between tests;
-- We should be able to write tests that use / are interested only in a subset of the provided shared resource
-
-
-## Shared resource
-
-The example will use the following shared resource definition:
+Here is a simple suite. You create one by extending `weaver.pure.Suite`, which requires returning a `fs2.Stream` of tests:
 
 ```scala
-final case class  Thingie()
-
-final case class Flooble(value: Int)
-
-final case class SharedResource(thingie: Thingie, flooble: Flooble)
-
-```
-
-In a real project this might look like
-
-```scala
-final case class SharedResource(transactor: Transactor[IO], client: Client[IO], metrics: Metrics[IO]) // etc
-```
-, however, we will proceed with the former for simplicity.
-
-## "Child" test suites
-
-
-Here is a set of tests that are only interested in a `Thingie` resource:
-
-```scala
-import weaver.extra.res._
-import cats.implicits._
+import fs2.Stream
+import weaver.pure._
 import cats.effect.IO
+import java.time.Instant
 
-object BarSpec extends Tests {
+object ExampleSuite extends Suite {
 
-  val test1: RTest[Thingie] = test("the thingie thingies") { thingie =>
-    IO(println("hey, testing thingie thingies")) >>
-      expect(thingie == Thingie())
-  }
-
-  val test2: RTest[Thingie] = test("another thingie test") { thingie =>
-    IO(println(s"got thingie: $thingie")) >> 
-      expect(11==11)
-  }
-}
-```
-
-And here are some tests that only use `Flooble`:
-
-```scala
-import weaver.extra.res._
-
-object FooSpec extends Tests {
-  val tests: List[RTest[Flooble]] = List(
-      test("the flooble floobles") { flooble =>
-        expect(flooble == Flooble(42))
+  override def suitesStream: fs2.Stream[IO,RTest[Unit]] = Stream(
+      test("a pure test") {
+          val x = 1
+          expect(x == 1)
+      },
+      test("an effectful test") {
+        for {
+          now <- IO(Instant.now())
+          _ <- IO(println(s"current time: $now"))
+        } yield expect(1 == 1)
       }
   )
 }
 ```
 
+This is pretty much 1:1 with what you'd write in `weaver-test` vanilla; with the important distinction
+that the function `test` returns a value of `RTest`, instead of performing a side effect to register the test in some internal mutable state.
 
-A couple of things to note:
+Couple of notes:
 
-- We can use weaver-test-extra via the single wildcard import 
-`import weaver.extra.res._`
-- The function ` def test[R](name: String)(run: R => IO[Expectations]): RTest[R]` returns a `weaver-test` test that has access to a resource (i.e. input argument) of type `R`
-- "Child suites" are just modules / files containing test descriptions. In this example we have one module containing tests of type `RTest[Flooble]` and another module containing tests of type `RTest[Thingie]`. This organisation is completely up to you and the specifics of your project
-- Child suites, being just contaners of `RTest` values, are not runnable by themselves - since we have not yet specified how to provide the resources that they use.
-- When you say `object Blah extends Tests`, this is only done in order to bring into scope the implicits
-necessary to write `test("blah")(r => ...)` and to use the `expect` macro. Nothing "frameworky" is going on here.
+- The type of `suitesStream` is `fs2.Stream[IO,RTest[Unit]]` because we require no 
+environment / shared test resource. If that was not the case, we'd extend `ResourceSuite` instead
+(see below)
 
-## "Parent" test suite
+- `"a pure test"` typechecks because there is an implicit conversion in scope
+`Expectations => IO[Expectations]`. This is done so you don't have to write
+```scala
+expect(foo == bar).pure[IO]
+```
+over and over. (This is the same behaviour as vanilla `weaver-test`)
 
-Now that we have our individual tests, we need a piece of code runnable by `WeaverTest`, that acquires
-the necessary shared resources, and provides them to the individual tests.
+## Suite of tests that share a common resource
+
+I.e. like `beforeAll`, but not hideous.
 
 ```scala
-import fs2.Stream
-import cats.implicits._
-import weaver.extra.res._
+import weaver.pure._
 import cats.effect.{IO, Resource}
+import scala.concurrent.ExecutionContext
+import java.util.concurrent.Executors
+import cats.effect.Blocker
 
-object SharedResourceSuite extends PureResourceSuite {
+object ExampleResSuite extends ResourceSuite {
 
-  override type R = SharedResource
+  override type R = List[String]
 
-  override def sharedResource: Resource[IO, SharedResource] = for {
-    _ <- Resource.liftF(IO(println("acquiring shared resource")))
-    result = SharedResource(Thingie(), Flooble(42))
-  } yield result
+  override def sharedResource: Resource[IO, List[String]] = for {
+    ec <- Resource.make(
+        IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
+    )( x =>
+        IO(x.shutdown)
+    )
+    blocker = Blocker.liftExecutionContext(ec)
+    xs = fs2.io.readInputStream(
+        IO(getClass().getResourceAsStream("/foo.txt")),
+        1024, blocker, closeAfterUse = true
+    ) 
+    lines <- Resource.liftF(
+        xs.through(fs2.text.utf8Decode).through(fs2.text.lines).compile.toList
+    )
+  } yield lines
 
-
-  val fooTests: Stream[IO, RTest[SharedResource]] =
-    Stream.emits(FooSpec.tests)
-      .local[SharedResource](_.flooble)
-
-  val barTests: Stream[IO, RTest[SharedResource]] =
-     Stream.emits(
-      List(BarSpec.test1, BarSpec.test2)
-  ).local[SharedResource](_.thingie)
-
-  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
-    fooTests ++ barTests
+  override def suitesStream: fs2.Stream[IO, RTest[List[String]]] = tests(
+      rTest("the file has one line") { lines =>
+        expect(lines.size == 1)
+      },
+      rTest("the file has the expected content") { lines =>
+        expect(lines == List("Hello, there!"))    
+      }
+  )
+  
 }
 ```
 
-Let's break this down:
+Let's break it down.
 
-1. In order to be runnable by `weaver-test`, we say `extends PureResourceSuite` in our "parent" suite
+1. To share a resource across all tests in a Suite, you extend `ResourceSuite`.
+2. ResourceSuite is polymorphic on the resource type. In this case, `override type R = List[String]`, the list of lines in a file.
+3. By implementing `def sharedResource: Resource[IO, R]`, you describe the suite-shared resource, which will be allocated once, used by all the tests, and disposed of, as in `cats.effect.Resource.use`.
+4. You create a test that requres access to some resource / environment (i.e. input parameter) by using `rTest` instead of `test`.
 
-2. We need to specify the type of the shared resource:
 
+No magic.
+
+## Using subsets of a shared resource across multiple modules
+
+Imagine the following use case
+
+- You have a module of database tests requiring, say `transactor: Transactor[IO]`
+- You have a module of http integration tests requiring, say `client: Client[IO]`
+- You have a module of end-to-end tests, requiring an access to a multitude of resources,
+say
 ```scala
-override type R = SharedResource
+final case class TestResources(transactor: Transactor[IO], client: Client[IO], config: Config, ....)
 ```
 
-3. We need to specify how we acquire the shared resource:
+Furthermore, you want to initialise the resources common to multiple test modules (in this example `Transactor[IO]` and `Client[IO]`) only once.
 
-```scala
-override def sharedResource: Resource[IO, SharedResource] = for {
-    _ <- Resource.liftF(IO(println("acquiring shared resource")))
-    result = SharedResource(Thingie(), Flooble(42))
-  } yield result
-```
+A way to achieve this in this example is to
+- Construct a value `dbTests: Stream[IO, RTest[Transactor[IO]]]` for the database tests
+- Construct a value `httpTests: Stream[IO, RTest[Client[IO]]]` for the http tests
+- Construct a value `e2eTests: Stream[IO, RTest[TestResources]]` for the end to end tests
+- Combine the resulting streams into a single stream with type `Stream[IO, RTest[TestResources]]`,
+using the `using` function
 
-4. If we have a function which knows how to go from `ParentResource => ChildResource`, and we have a 
-stream `Stream[IO, RTest[ChildResource]]`, we can get a stream `Stream[IO, RTest[ParentResource]]` using the `local` function provided by the
-`weaver-test-extra` library:
+### `using`
 
-```scala
-val fooTests: Stream[IO, RTest[SharedResource]] =
-    Stream.emits(FooSpec.tests)
-      .local[SharedResource](_.flooble) // goes Stream[IO, RTest[Flooble]] => Stream[IO, RTest[SharedResource]]
-```
-
-This lets us promote a "child" test stream to a test stream using the parent shared resource.
-
-5. Using the `local` function, we can compose the values provided by the child suites into a stream of tests of the shared resource:
-
-```scala
- val fooTests: Stream[IO, RTest[SharedResource]] =
-    Stream.emits(FooSpec.tests)
-      .local[SharedResource](_.flooble)
-
-  val barTests: Stream[IO, RTest[SharedResource]] =
-     Stream.emits(
-      List(BarSpec.test1, BarSpec.test2)
-  ).local[SharedResource](_.thingie)
-
-  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
-    fooTests ++ barTests
-```
-
-6. Running the test yields the following output:
-
-```
-com.example.http4splayground.SharedResourceSuite
-acquiring shared resource
-hey, testing thingie thingies
-got thingie: Thingie()
-+ the flooble floobles
-+ the thingie thingies
-+ another thingie test
-
-Execution took 58ms
-3 tests, 3 passed
-All tests in com.example.http4splayground.SharedResourceSuite passed
-```
-
-# Internals
-
-## `local`
-
-The `local` function is defined as follows:
+The function is defined as follows
 
 ```scala
 implicit class RTestStreamOps[R, A](private val xs: Stream[IO, A]) {
-    def local[R1](f: R1 => R)(implicit ev: A =:= RTest[R]): Stream[IO, RTest[R1]] =
-      xs.map(x => Contravariant[RTest].contramap(x)(f))
-  }
-```  
-
-If we dropped the implicits cruft (which is added for convenience and to help type inference), that function would look like:
-
-```scala
-    def local[R1](xs: Stream[IO, RTest[R]])(f: R1 => R): Stream[IO, RTes[R1]] =
+    def using[R1](f: R1 => R)(implicit ev: A =:= RTest[R]): Stream[IO, RTest[R1]] =
       xs.map(x => Contravariant[RTest].contramap(x)(f))
   }
 ```
 
-Digging further, `RTest` is defined as 
+Minus the implicit cruft this becomes
 
 ```scala
-final case class RTest[R](name: String, run: (Log[IO], R) => IO[Expectations])
-```
-
-Which for the purposes of the discussion can be simplified to 
-
-```scala
-final case class RTest[R](run: R => IO[Expectations])
-```
-
-Which is just a function `R => IO[Expectations])` polymorhic in `R`.
-
-So, all this is a really long way of saying `local` uses the fact that functions form a contravariant functor on their input.
-
-Indeed, the `Contravariant` instance for `RTest` is just the contravariant instance for functions:
-
-```scala
-object RTest {
-  implicit val contravariantForRTest: Contravariant[RTest[*]] = new Contravariant[RTest] {
-    override def contramap[A, B](fa: RTest[A])(f: B => A): RTest[B] = RTest(
-      fa.name, (log, r) => fa.run(log, f(r))
-    )
+  def using[ParentRes](f: ParentRes => ChildRes)(xs: Stream[IO, RTest[ChildRes]]): Stream[IO, RTest[ParentRes]] =
+      xs.map(x => Contravariant[RTest].contramap(x)(f))
   }
 ```
+
+That is to say, we can go `Stream[IO, RTest[ChildRes]] => Stream[IO, RTest[ParentRes]]`, as long as we know how to go `ParentRes => ChildRes`. 
+
+This works because `RTest` is `Contravariant` in `R`
+
+### Example
+
+```scala
+import fs2.Stream
+import cats.effect.{IO, Resource}
+import weaver.pure._
+
+
+final case class FooResource()
+final case class BarResource(value: Int)
+final case class SharedResource(foo: FooResource, bar: BarResource)
+
+object FooSuite {
+  val all: Stream[IO, RTest[FooResource]] = Stream(
+    rTest("the foo foos") { foo =>
+        expect(foo == FooResource())
+    }
+  )
+}
+
+object BarSuite {
+  val all: Stream[IO, RTest[BarResource]] = Stream(
+    rTest("a barsuite test") { r =>
+      expect(r.value == 42)
+    }
+  )
+}
+
+object ExampleSharedResSuite extends RSuite {
+  override type R = SharedResource
+
+  override def sharedResource: Resource[IO, SharedResource] = for {
+    _ <- Resource.liftF(IO.pure(println("acquiring shared resource")))
+    res <- Resource.liftF(IO.pure(
+      SharedResource(FooResource(), BarResource(42))
+    ))
+  } yield res
+
+  val all: Stream[IO, RTest[SharedResource]] = Stream(
+    rTest[SharedResource]("some test")(res => {
+      expect(res.bar.value == 42)
+  }))
+
+  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
+      all ++
+      FooSuite.all
+        .using[SharedResource](_.foo) ++
+      BarSuite.all
+        .using[SharedResource](_.bar)
+}
+```
+
+Notes:
+- `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `Stream[IO, RTest[A]]` values. This of course also means they would not
+be auto-discoverable or runnable on their own.
