@@ -75,7 +75,7 @@ and does require an environment.
 
 Here is a simple suite. You create one by extending `weaver.pure.Suite`, which requires returning a `fs2.Stream` of tests:
 
-```
+```scala
 import fs2.Stream
 import weaver.pure._
 import cats.effect.IO
@@ -118,8 +118,7 @@ over and over. (This is the same behaviour as vanilla `weaver-test`)
 
 I.e. like `beforeAll`, but not hideous.
 
-```
-
+```scala
 import weaver.pure._
 import cats.effect.{IO, Resource}
 import scala.concurrent.ExecutionContext
