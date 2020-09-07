@@ -24,6 +24,8 @@ tests to be ran, we can reap the benefits of all our (test) code being referenti
 In practice this is achieved in just a few lines of code. This library contains little code
 aside from documentation.
 
+See also [this article](https://dimitarg.github.io/pure-testing-scala/) for a more verbose treatment of why purely functional testing is a good idea.
+
 # Getting started 
 
 1. Add the following resolver to your project settings
