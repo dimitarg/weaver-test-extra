@@ -21,8 +21,8 @@ githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
 ))
 githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release with-defaults")))
 
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.4.3"
-libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.4.3"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.5.0"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.5.0"
 
 libraryDependencies += "co.fs2" %% "fs2-io" % "2.4.4" % "test"
 
