@@ -19,9 +19,6 @@ package object pure {
   def expect: Expect = new Expect
   def assert: Expect = new Expect
 
-  implicit def singleExpectationConversion(e: SingleExpectation)(implicit loc: SourceLocation): IO[Expectations] =
-    Expectations.fromSingle(e).pure[IO]
-
   implicit def expectationsConversion(e: Expectations): IO[Expectations] =
     e.pure[IO]
 }

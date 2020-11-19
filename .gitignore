@@ -7,3 +7,4 @@ target
 .ammonite/
 metals.sbt
 .vscode
+.bsp/
