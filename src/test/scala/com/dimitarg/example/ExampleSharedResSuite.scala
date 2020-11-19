@@ -21,7 +21,7 @@ object FooSuite {
 object BarSuite {
   val all: Stream[IO, RTest[BarResource]] = Stream(
     rTest("a barsuite test") { r =>
-      expect(r.value == 42)
+      expect(r.value == 43)
     }
   )
 }
