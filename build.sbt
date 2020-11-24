@@ -25,7 +25,7 @@ githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release cross w
 libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.5.0"
 libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.5.0"
 
-libraryDependencies += "co.fs2" %% "fs2-io" % "2.4.5" % "test"
+libraryDependencies += "co.fs2" %% "fs2-io" % "2.4.6" % "test"
 
 testFrameworks += new TestFramework("weaver.framework.TestFramework")
 
