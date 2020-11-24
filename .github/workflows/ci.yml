@@ -122,4 +122,4 @@ jobs:
 
       - run: git config user.name "Github Actions (dimitarg/weaver-test-extra)"
 
-      - run: sbt ++${{ matrix.scala }} 'release with-defaults'
+      - run: sbt ++${{ matrix.scala }} 'release cross with-defaults'

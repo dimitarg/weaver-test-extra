@@ -19,7 +19,8 @@ githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
 githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
   List("git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"")
 ))
-githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release with-defaults")))
+
+githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
 libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.5.0"
 libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.5.0"
