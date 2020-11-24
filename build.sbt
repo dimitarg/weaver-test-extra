@@ -2,9 +2,9 @@ name := "weaver-test-extra"
 organization in ThisBuild := "io.github.dimitarg"
 
 scalaVersion in ThisBuild := "2.13.3"
-crossScalaVersions in ThisBuild := Seq("2.13.3")
+crossScalaVersions in ThisBuild := Seq("2.13.3", "2.12.12")
 
-githubWorkflowScalaVersions in ThisBuild := Seq("2.13.3")
+githubWorkflowScalaVersions in ThisBuild := Seq("2.13.3", "2.12.12")
 githubWorkflowBuild in ThisBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
 githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}"
@@ -28,5 +28,5 @@ libraryDependencies += "co.fs2" %% "fs2-io" % "2.4.5" % "test"
 
 testFrameworks += new TestFramework("weaver.framework.TestFramework")
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full)
 
