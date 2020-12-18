@@ -1,3 +1,5 @@
+ [ ![Download](https://api.bintray.com/packages/dimitarg/maven/weaver-test-extra/images/download.svg) ](https://bintray.com/dimitarg/maven/weaver-test-extra/_latestVersion) 
+
 # weaver-test-extra
 
 Provides extra functionality to https://github.com/disneystreaming/weaver-test
