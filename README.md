@@ -1,5 +1,6 @@
  [ ![Download](https://api.bintray.com/packages/dimitarg/maven/weaver-test-extra/images/download.svg) ](https://bintray.com/dimitarg/maven/weaver-test-extra/_latestVersion)
-[![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra) 
+[![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
+ ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
 # weaver-test-extra
 
