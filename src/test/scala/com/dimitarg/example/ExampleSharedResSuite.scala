@@ -35,15 +35,15 @@ object ExampleSharedResSuite extends Suite {
     ))
   } yield res
 
-  val all: Stream[IO, RTest[SharedResource]] = Stream(
+  val suiteUsingAllResources: Stream[IO, RTest[SharedResource]] = Stream(
     rTest[SharedResource]("some test")(res => {
       expect(res.bar.value == 42)
   }))
 
   override def suitesStream: fs2.Stream[IO, Test] =
     Stream.resource(mkSharedResource).flatMap { r =>
-      all.provide(r) ++
+      suiteUsingAllResources.provide(r) ++
       FooSuite.all.local[SharedResource](_.foo).provide(r) ++
-      BarSuite.all.local[SharedResource](_.bar).provideResource(mkSharedResource)
+      BarSuite.all.local[SharedResource](_.bar).provide(r)
     }
 }
