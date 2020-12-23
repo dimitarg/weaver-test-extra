@@ -7,7 +7,7 @@ import java.time.Instant
 
 object ExampleSuite extends Suite {
 
-  override def suitesStream: fs2.Stream[IO,RTest[Unit]] = Stream(
+  override def suitesStream: fs2.Stream[IO, Test] = Stream(
       test("a pure test") {
           val x = 1
           expect(x == 1)

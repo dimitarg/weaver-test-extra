@@ -18,7 +18,7 @@ object ExampleProvideSuite extends Suite {
       expect(res.bar.value == 42)
   }))
 
-  override def suitesStream: fs2.Stream[IO, RTest[Unit]] =
+  override def suitesStream: fs2.Stream[IO, Test] =
       Stream.resource(res).flatMap { r =>
           all.provideShared(r) ++
           FooSuite.all.using[SharedResource](_.foo).provideShared(r) ++
