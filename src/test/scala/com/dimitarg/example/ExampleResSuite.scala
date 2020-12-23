@@ -25,16 +25,17 @@ object ExampleResSuite extends Suite {
     )
   } yield lines
 
+  val suites: Stream[IO, RTest[List[String]]] = Stream(
+    rTest("the file has one line") { lines =>
+      expect(lines.size == 1)
+    },
+    rTest("the file has the expected content") { lines =>
+      expect(lines == List("Hello, there!"))    
+    }
+  )
+
   override def suitesStream: fs2.Stream[IO,RTest[Unit]] =
-    Stream.resource(sharedResource).flatMap { r=>
-      val suites: Stream[IO, RTest[List[String]]] = Stream(
-        rTest("the file has one line") { lines =>
-          expect(lines.size == 1)
-        },
-        rTest("the file has the expected content") { lines =>
-          expect(lines == List("Hello, there!"))    
-        }
-      )
+    Stream.resource(sharedResource).flatMap { r =>
       suites.provideShared(r)
     }
   
