@@ -36,11 +36,5 @@ object ExampleResSuite extends Suite {
 
   override def suitesStream: fs2.Stream[IO, Test] =
     suites.provideResource(sharedResource)
-
-  def foo[R](resource: Resource[IO, R])(suite: Stream[IO, RTest[R]]): Stream[IO, Test] = {
-    Stream.resource(resource).flatMap {
-      r => suite.map(tst => Test(tst.name, tst.run(r)))
-    }
-  }
   
 }

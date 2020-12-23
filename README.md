@@ -238,7 +238,7 @@ A way to achieve this in this example is to
 - Construct a value `dbTests: Stream[IO, RTest[Transactor[IO]]]` for the database tests
 - Construct a value `httpTests: Stream[IO, RTest[Client[IO]]]` for the http tests
 - Construct a value `e2eTests: Stream[IO, RTest[TestResources]]` for the end to end tests
-- Combine the resulting streams into a single stream with type `Stream[IO, RTest[TestResources]]`,
+- Combine the resulting streams into a single stream with type `Stream[IO, Test]`,
 using the `local` and `provide` functions
 
 ### `local`
