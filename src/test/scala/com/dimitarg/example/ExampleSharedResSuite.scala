@@ -26,10 +26,9 @@ object BarSuite {
   )
 }
 
-object ExampleSharedResSuite extends RSuite {
-  override type R = SharedResource
+object ExampleSharedResSuite extends Suite {
 
-  override def sharedResource: Resource[IO, SharedResource] = for {
+  val sharedResource: Resource[IO, SharedResource] = for {
     _ <- Resource.liftF(IO.pure(println("acquiring shared resource")))
     res <- Resource.liftF(IO.pure(
       SharedResource(FooResource(), BarResource(42))
@@ -41,10 +40,10 @@ object ExampleSharedResSuite extends RSuite {
       expect(res.bar.value == 42)
   }))
 
-  override def suitesStream: fs2.Stream[IO, RTest[SharedResource]] =
-      all ++
-      FooSuite.all
-        .using[SharedResource](_.foo) ++
-      BarSuite.all
-        .using[SharedResource](_.bar)
+  override def suitesStream: fs2.Stream[IO, RTest[Unit]] =
+    Stream.resource(sharedResource).flatMap { r =>
+      all.provideShared(r) ++
+      FooSuite.all.using[SharedResource](_.foo).provideShared(r) ++
+      BarSuite.all.using[SharedResource](_.bar).provide(sharedResource)
+    }
 }
