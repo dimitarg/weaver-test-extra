@@ -2,7 +2,7 @@ package weaver.pure
 
 import cats.effect.IO
 import fs2.Stream
-import weaver.{PureIOSuite, Test, TestOutcome}
+import weaver.{PureIOSuite, Test => WeaverTest, TestOutcome}
 
 trait Suite extends PureIOSuite {
 
@@ -13,7 +13,7 @@ trait Suite extends PureIOSuite {
   override def spec(args: List[String]): Stream[IO, TestOutcome] = {
     val parallism = math.max(1, maxParallelism)
     suitesStream.parEvalMap(parallism) { test =>
-        Test(test.name, test.run)
+        WeaverTest(test.name, test.run)
     }
   }
 }
