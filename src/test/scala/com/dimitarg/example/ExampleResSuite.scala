@@ -36,7 +36,7 @@ object ExampleResSuite extends Suite {
 
   override def suitesStream: fs2.Stream[IO, Test] =
     Stream.resource(sharedResource).flatMap { r =>
-      suites.provideShared(r)
+      suites.provide(r)
     }
   
 }

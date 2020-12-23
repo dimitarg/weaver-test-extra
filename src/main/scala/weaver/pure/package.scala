@@ -14,15 +14,15 @@ package object pure {
 
   implicit class RTestStreamOps[R, A](private val xs: Stream[IO, A]) {
 
-    def using[R1](f: R1 => R)(implicit ev: A =:= RTest[R]): Stream[IO, RTest[R1]] =
+    def local[R1](f: R1 => R)(implicit ev: A =:= RTest[R]): Stream[IO, RTest[R1]] =
       xs.map(x => Contravariant[RTest].contramap(x)(f))
 
-    def provideShared(r: R)(implicit ev: A =:= RTest[R]): Stream[IO, Test] = {
-      xs.using[Unit](_ => r).map(x => Test(x.name, x.run(())))
+    def provide(r: R)(implicit ev: A =:= RTest[R]): Stream[IO, Test] = {
+      xs.local[Unit](_ => r).map(x => Test(x.name, x.run(())))
     }
 
-    def provide(r: Resource[IO, R])(implicit ev: A =:= RTest[R]): Stream[IO, Test] =
-      Stream.resource(r).flatMap(xs.provideShared(_))
+    def provideResource(r: Resource[IO, R])(implicit ev: A =:= RTest[R]): Stream[IO, Test] =
+      Stream.resource(r).flatMap(xs.provide(_))
   }
 
   def expect: Expect = new Expect

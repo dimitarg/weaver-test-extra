@@ -20,9 +20,9 @@ object ExampleProvideSuite extends Suite {
 
   override def suitesStream: fs2.Stream[IO, Test] =
       Stream.resource(res).flatMap { r =>
-          all.provideShared(r) ++
-          FooSuite.all.using[SharedResource](_.foo).provideShared(r) ++
-          BarSuite.all.using[SharedResource](_.bar).provide(res)
+          all.provide(r) ++
+          FooSuite.all.local[SharedResource](_.foo).provide(r) ++
+          BarSuite.all.local[SharedResource](_.bar).provideResource(res)
 
       }
 }
