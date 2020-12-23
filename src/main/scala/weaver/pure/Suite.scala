@@ -1,8 +1,19 @@
 package weaver.pure
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
+import fs2.Stream
+import weaver.{PureIOSuite, Test => WeaverTest, TestOutcome}
 
-trait Suite extends RSuite {
-  override type R = Unit
-  override def sharedResource: Resource[IO,Unit] = Resource.pure(())
+trait Suite extends PureIOSuite {
+
+  def suitesStream: Stream[IO, Test]
+
+  def maxParallelism : Int = 10000
+
+  override def spec(args: List[String]): Stream[IO, TestOutcome] = {
+    val parallism = math.max(1, maxParallelism)
+    suitesStream.parEvalMap(parallism) { test =>
+        WeaverTest(test.name, test.run)
+    }
+  }
 }

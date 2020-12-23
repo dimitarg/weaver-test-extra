@@ -7,11 +7,9 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 import cats.effect.Blocker
 
-object ExampleResSuite extends RSuite {
+object ExampleResSuite extends Suite {
 
-  override type R = List[String]
-
-  override def sharedResource: Resource[IO, List[String]] = for {
+  val sharedResource: Resource[IO, List[String]] = for {
     ec <- Resource.make(
         IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
     )( x =>
@@ -27,13 +25,16 @@ object ExampleResSuite extends RSuite {
     )
   } yield lines
 
-  override def suitesStream: fs2.Stream[IO,RTest[R]] = Stream(
-      rTest("the file has one line") { lines =>
-        expect(lines.size == 1)
-      },
-      rTest("the file has the expected content") { lines =>
-        expect(lines == List("Hello, there!"))    
-      }
+  val suites: Stream[IO, RTest[List[String]]] = Stream(
+    rTest("the file has one line") { lines =>
+      expect(lines.size == 1)
+    },
+    rTest("the file has the expected content") { lines =>
+      expect(lines == List("Hello, there!"))    
+    }
   )
+
+  override def suitesStream: fs2.Stream[IO, Test] =
+    suites.provideResource(sharedResource)
   
 }
