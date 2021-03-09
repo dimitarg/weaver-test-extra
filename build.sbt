@@ -27,6 +27,8 @@ libraryDependencies +=  "com.disneystreaming" %% "weaver-framework" % "0.5.1"
 
 libraryDependencies += "co.fs2" %% "fs2-io" % "2.5.0" % "test"
 
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.15.2" % "test"
+
 testFrameworks += new TestFramework("weaver.framework.TestFramework")
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.2" cross CrossVersion.full)
