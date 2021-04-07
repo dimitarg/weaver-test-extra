@@ -22,7 +22,7 @@ githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
   List(
     "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
     "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A5131D4F48321D6E",
-    "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --passphrase $PGP_PASSPHRASE --import"
+    "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
   )
 ))
 
