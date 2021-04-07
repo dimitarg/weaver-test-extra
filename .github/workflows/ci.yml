@@ -14,12 +14,10 @@ on:
     branches: ['*']
 
 env:
-  PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-  BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
-  PGP_SECRET: ${{ secrets.PGP_SECRET }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  PGP_SECRET: ${{ secrets.PGP_SECRET }}
 
 jobs:
   build:

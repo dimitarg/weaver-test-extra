@@ -1,3 +1,6 @@
+import xerial.sbt.Sonatype._
+import ReleaseTransformations._
+
 name := "weaver-test-extra"
 organization in ThisBuild := "io.github.dimitarg"
 
@@ -7,8 +10,6 @@ crossScalaVersions in ThisBuild := Seq("2.13.4", "2.12.12")
 githubWorkflowScalaVersions in ThisBuild := Seq("2.13.4", "2.12.12")
 githubWorkflowBuild in ThisBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
 githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
-githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}"
-githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.BINTRAY_PASS }}"
 githubWorkflowEnv in ThisBuild += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
 githubWorkflowEnv in ThisBuild += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
 
@@ -40,3 +41,32 @@ addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.2" cross CrossVersi
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 usePgpKeyHex("B08DBE76A33A8E25468188D5A5131D4F48321D6E")
+
+publishTo  in ThisBuild := sonatypePublishToBundle.value
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+
+publishMavenStyle  in ThisBuild := true
+
+sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com"))
+
+developers := List(
+  Developer(id="dimitarg", name="Dimitar Georgiev", email="dimitar.georgiev.bg@gmail.com", url=url("https://dimitarg.github.io/"))
+)
+
+releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  // For non cross-build projects, use releaseStepCommand("publishSigned")
+  releaseStepCommandAndRemaining("+publishSigned"),
+  releaseStepCommand("sonatypeBundleRelease"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
