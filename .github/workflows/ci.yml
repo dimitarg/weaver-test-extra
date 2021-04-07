@@ -14,10 +14,11 @@ on:
     branches: ['*']
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
   BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-  BINTRAY_PASS: ${{ secrets.BINTRAY_PASS }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  BINTRAY_PASS: ${{ secrets.PGP_SECRET }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -120,6 +121,8 @@ jobs:
           tar xf targets.tar
           rm targets.tar
 
-      - run: git config user.name "Github Actions (dimitarg/weaver-test-extra)"
+      - run: |
+          git config user.name "Github Actions (dimitarg/weaver-test-extra)"
+          echo $PGP_SECRET | gpg --armor --import
 
       - run: sbt ++${{ matrix.scala }} 'release cross with-defaults'
