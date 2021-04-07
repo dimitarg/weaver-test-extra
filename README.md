@@ -324,3 +324,4 @@ object ExampleSharedResSuite extends Suite {
 
 Notes:
 - `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `Stream[IO, RTest[A]]` values. This of course also means they would not be auto-discoverable or runnable on their own.
+
