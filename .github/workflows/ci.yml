@@ -125,6 +125,6 @@ jobs:
       - run: |
           git config user.name "Github Actions (dimitarg/weaver-test-extra)"
           gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A5131D4F48321D6E
-          echo $PGP_SECRET | gpg --armor --import
+          echo $PGP_SECRET | base64 --decode | gpg --import
 
       - run: sbt ++${{ matrix.scala }} 'release cross with-defaults'
