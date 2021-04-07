@@ -10,7 +10,7 @@ githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN 
 githubWorkflowEnv in ThisBuild += "BINTRAY_USER" -> "${{ secrets.BINTRAY_USER }}"
 githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.BINTRAY_PASS }}"
 githubWorkflowEnv in ThisBuild += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
-githubWorkflowEnv in ThisBuild += "BINTRAY_PASS" -> "${{ secrets.PGP_SECRET }}"
+githubWorkflowEnv in ThisBuild += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
 
 licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
