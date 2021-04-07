@@ -12,6 +12,9 @@ githubWorkflowBuild in ThisBuild := Seq(WorkflowStep.Sbt(List("coverage", "test"
 githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 githubWorkflowEnv in ThisBuild += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
 githubWorkflowEnv in ThisBuild += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
+githubWorkflowEnv in ThisBuild += "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+githubWorkflowEnv in ThisBuild += "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}"
+
 
 licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
