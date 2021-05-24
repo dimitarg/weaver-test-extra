@@ -9,9 +9,9 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches: ['*']
+    branches: ['**']
   push:
-    branches: ['*']
+    branches: ['**']
 
 env:
   PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
@@ -54,9 +54,9 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Check that workflows are up to date
-        run: sbt ++${{ matrix.scala }} githubWorkflowCheck
+        run: sbt --client '++${{ matrix.scala }}; githubWorkflowCheck'
 
-      - run: sbt ++${{ matrix.scala }} coverage test coverageReport
+      - run: sbt --client '++${{ matrix.scala }}; coverage; test; coverageReport'
 
       - run: 'bash <(curl -s https://codecov.io/bash)'
 
@@ -72,7 +72,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master')
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -127,4 +127,4 @@ jobs:
           gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A5131D4F48321D6E
           echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import
 
-      - run: sbt ++${{ matrix.scala }} 'release cross with-defaults'
+      - run: sbt --client '++${{ matrix.scala }}; release cross with-defaults'
