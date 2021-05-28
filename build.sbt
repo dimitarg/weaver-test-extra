@@ -5,9 +5,9 @@ name := "weaver-test-extra"
 organization in ThisBuild := "io.github.dimitarg"
 
 scalaVersion in ThisBuild := "2.13.4"
-crossScalaVersions in ThisBuild := Seq("2.13.4", "2.12.12")
+crossScalaVersions in ThisBuild := Seq("2.13.4", "2.12.14")
 
-githubWorkflowScalaVersions in ThisBuild := Seq("2.13.4", "2.12.12")
+githubWorkflowScalaVersions in ThisBuild := Seq("2.13.4", "2.12.14")
 githubWorkflowBuild in ThisBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
 githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 githubWorkflowEnv in ThisBuild += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
