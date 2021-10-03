@@ -2,27 +2,28 @@ import xerial.sbt.Sonatype._
 import ReleaseTransformations._
 
 name := "weaver-test-extra"
-organization in ThisBuild := "io.github.dimitarg"
+ThisBuild / organization := "io.github.dimitarg"
 
-scalaVersion in ThisBuild := "2.13.6"
-crossScalaVersions in ThisBuild := Seq("2.13.6", "2.12.15")
+ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / crossScalaVersions := Seq("2.13.6", "2.12.15")
 
-githubWorkflowScalaVersions in ThisBuild := Seq("2.13.6", "2.12.15")
-githubWorkflowBuild in ThisBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
-githubWorkflowEnv in ThisBuild += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
-githubWorkflowEnv in ThisBuild += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
-githubWorkflowEnv in ThisBuild += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
-githubWorkflowEnv in ThisBuild += "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
-githubWorkflowEnv in ThisBuild += "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}"
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.6", "2.12.15")
+ThisBuild / githubWorkflowBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
+ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
+ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
+ThisBuild / githubWorkflowEnv += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
+ThisBuild / githubWorkflowEnv += "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+ThisBuild / githubWorkflowEnv += "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}"
+ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branch("master"))
 
 
-licenses in ThisBuild += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
+ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-githubWorkflowBuildPostamble in ThisBuild := Seq(WorkflowStep.Run(
+ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
   commands = List("bash <(curl -s https://codecov.io/bash)")
 ))
 
-githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
+ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
   List(
     "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
     "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A5131D4F48321D6E",
@@ -30,7 +31,7 @@ githubWorkflowPublishPreamble in ThisBuild := Seq(WorkflowStep.Run(
   )
 ))
 
-githubWorkflowPublish in ThisBuild := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
+ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
 libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.7.4"
 libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "0.7.4"
@@ -45,12 +46,12 @@ releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 usePgpKeyHex("B08DBE76A33A8E25468188D5A5131D4F48321D6E")
 
-publishTo  in ThisBuild := sonatypePublishToBundle.value
+ThisBuild / publishTo := sonatypePublishToBundle.value
 
 sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
-publishMavenStyle  in ThisBuild := true
+ThisBuild / publishMavenStyle := true
 
 sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com"))
 
