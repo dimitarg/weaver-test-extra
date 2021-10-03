@@ -8,11 +8,11 @@ import java.time.Instant
 object ExampleSuite extends Suite {
 
   override def suitesStream: fs2.Stream[IO, Test] = Stream(
-      test("a pure test") {
+      pureTest("a pure test") {
           val x = 1
           expect(x == 1)
       },
-      test("another pure test") {
+      pureTest("another pure test") {
         val xs = List()
         expect(xs == List())
       },

@@ -12,7 +12,7 @@ final case class SharedResource(foo: FooResource, bar: BarResource)
 object FooSuite {
 
   val all: FooResource => Stream[IO, Test] = foo => Stream(
-    test("the foo foos") {
+    pureTest("the foo foos") {
         expect(foo == FooResource())
     }
   )
@@ -20,7 +20,7 @@ object FooSuite {
 
 object BarSuite {
   val all: BarResource => Stream[IO, Test] = bar => Stream(
-    test("a barsuite test") {
+    pureTest("a barsuite test") {
       expect(bar.value == 42)
     }
   )
@@ -29,14 +29,14 @@ object BarSuite {
 object ExampleSharedResSuite extends Suite {
 
   val mkSharedResource: Resource[IO, SharedResource] = for {
-    _ <- Resource.liftF(IO.pure(println("acquiring shared resource")))
-    res <- Resource.liftF(IO.pure(
+    _ <- Resource.eval(IO.pure(println("acquiring shared resource")))
+    res <- Resource.eval(IO.pure(
       SharedResource(FooResource(), BarResource(42))
     ))
   } yield res
 
   val suiteUsingAllResources: SharedResource => Stream[IO, Test] = res => Stream(
-    test("some test"){
+    pureTest("some test"){
       expect(res.bar.value == 42)
   })
 
