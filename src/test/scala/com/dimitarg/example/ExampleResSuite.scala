@@ -8,6 +8,10 @@ import java.util.concurrent.Executors
 
 object ExampleResSuite extends Suite {
 
+  // shared resource
+  final case class TextFile(lines: List[String])
+
+  // describe how to acquire shared resource
   val sharedResource: Resource[IO, List[String]] = for {
     ec <- Resource.make(
         IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
@@ -23,6 +27,8 @@ object ExampleResSuite extends Suite {
     )
   } yield lines
 
+
+  // suite which uses shared resource
   val suites: List[String] => Stream[IO, Test] = lines => Stream(
     pureTest("the file has one line") {
       expect(lines.size == 1)
@@ -32,6 +38,7 @@ object ExampleResSuite extends Suite {
     }
   )
 
+  // construct `suitesStream` by acquiring resource and passing that to your `suite` via `flatMap`
   override def suitesStream: fs2.Stream[IO, Test] =
     Stream.resource(sharedResource).flatMap { res =>
       suites(res)

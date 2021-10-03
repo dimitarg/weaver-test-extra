@@ -9,9 +9,4 @@ package object pure extends Expectations.Helpers {
 
   def pureTest(name: String)(run: Expectations): Test = test(name)(run.pure[IO])
 
-  // def expect: Expect = new Expect
-  // def assert: Expect = new Expect
-
-  // implicit def expectationsConversion(e: Expectations): IO[Expectations] =
-  //   e.pure[IO]
 }

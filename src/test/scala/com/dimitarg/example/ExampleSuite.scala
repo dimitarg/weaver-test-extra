@@ -1,9 +1,10 @@
 package com.dimitarg.example
 
+import java.time.Instant
+
+import cats.effect.IO
 import fs2.Stream
 import weaver.pure._
-import cats.effect.IO
-import java.time.Instant
 
 object ExampleSuite extends Suite {
 
