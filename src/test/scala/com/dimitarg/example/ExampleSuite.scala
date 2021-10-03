@@ -1,18 +1,19 @@
 package com.dimitarg.example
 
+import java.time.Instant
+
+import cats.effect.IO
 import fs2.Stream
 import weaver.pure._
-import cats.effect.IO
-import java.time.Instant
 
 object ExampleSuite extends Suite {
 
   override def suitesStream: fs2.Stream[IO, Test] = Stream(
-      test("a pure test") {
+      pureTest("a pure test") {
           val x = 1
           expect(x == 1)
       },
-      test("another pure test") {
+      pureTest("another pure test") {
         val xs = List()
         expect(xs == List())
       },

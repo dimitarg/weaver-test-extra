@@ -2,9 +2,9 @@ package weaver.pure
 
 import cats.effect.IO
 import fs2.Stream
-import weaver.{PureIOSuite, Test => WeaverTest, TestOutcome}
+import weaver.{Test => WeaverTest, TestOutcome, BaseIOSuite, RunnableSuite, TestName, Expectations}
 
-trait Suite extends PureIOSuite {
+trait Suite extends RunnableSuite[IO] with BaseIOSuite with Expectations.Helpers {
 
   def suitesStream: Stream[IO, Test]
 
@@ -16,4 +16,6 @@ trait Suite extends PureIOSuite {
         WeaverTest(test.name, test.run)
     }
   }
+
+  override def plan: List[TestName] = Nil
 }
