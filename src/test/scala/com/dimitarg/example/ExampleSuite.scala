@@ -8,7 +8,7 @@ import weaver.pure._
 
 object ExampleSuite extends Suite {
 
-  override def suitesStream: fs2.Stream[IO, Test] = Stream(
+  override def suitesStream: Stream[IO, Test] = Stream(
       pureTest("a pure test") {
           val x = 1
           expect(x == 1)

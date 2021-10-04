@@ -7,6 +7,6 @@ package object pure extends Expectations.Helpers {
 
   def test(name: String)(run: IO[Expectations]): Test = Test(name, run)
 
-  def pureTest(name: String)(run: Expectations): Test = test(name)(run.pure[IO])
+  def pureTest(name: String)(run: => Expectations): Test = test(name)(run.pure[IO])
 
 }
