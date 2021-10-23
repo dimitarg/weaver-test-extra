@@ -1,5 +1,4 @@
- [ ![Download](https://api.bintray.com/packages/dimitarg/maven/weaver-test-extra/images/download.svg) ](https://bintray.com/dimitarg/maven/weaver-test-extra/_latestVersion)
-[![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
+ [![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
  ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
 # weaver-test-extra
@@ -35,19 +34,15 @@ See also [this article](https://dimitarg.github.io/pure-testing-scala/) for a mo
 
 # Getting started 
 
-1. Add the following resolver to your project settings
+0. Obtain the current version number by looking for the latest [release](https://github.com/dimitarg/weaver-test-extra/releases) of this library
 
-```
-resolvers += Resolver.bintrayRepo("dimitarg", "maven")
-```
-
-2. Add the following dependency to your build
+1. Add the following dependency to your build
 
 ```
 "io.github.dimitarg"  %%  "weaver-test-extra"     % <latestVersion> % "test"
 ```
 
-3. (Not specific to this library, this is a WeaverTest requirement). If you haven't already,
+2. (Not specific to this library, this is a WeaverTest requirement). If you haven't already,
 add the following to your project settings
 
 ```
@@ -70,7 +65,7 @@ That is to say, a test has a name, returns а test result
 `Expectations`, and is allowed to perform `IO` while doing so.
 
 
-## Creating an `Test`
+## Creating a `Test`
 
 ... can be done by constructing an instance of the above data type, either by calling its data constructor or 
 via the function `weaver.pure.test`.
@@ -92,7 +87,7 @@ import weaver.pure._
 
 object ExampleSuite extends Suite {
 
-  override def suitesStream: fs2.Stream[IO, Test] = Stream(
+  override def suitesStream: Stream[IO, Test] = Stream(
       pureTest("a pure test") {
           val x = 1
           expect(x == 1)
@@ -130,11 +125,13 @@ Since a suite (or sub-suite) of tests has type `Stream[IO, Test]`, and [sharing 
 ```scala
 package com.dimitarg.example
 
+import java.util.concurrent.Executors
+
+import scala.concurrent.ExecutionContext
+
+import cats.effect.{IO, Resource}
 import fs2.Stream
 import weaver.pure._
-import cats.effect.{IO, Resource}
-import scala.concurrent.ExecutionContext
-import java.util.concurrent.Executors
 
 object ExampleResSuite extends Suite {
 
@@ -142,7 +139,7 @@ object ExampleResSuite extends Suite {
   final case class TextFile(lines: List[String])
 
   // describe how to acquire shared resource
-  val sharedResource: Resource[IO, List[String]] = for {
+  val sharedResource: Resource[IO, TextFile] = for {
     ec <- Resource.make(
         IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
     )( x =>
@@ -155,21 +152,21 @@ object ExampleResSuite extends Suite {
     lines <- Resource.eval(
         xs.through(fs2.text.utf8.decode).through(fs2.text.lines).compile.toList
     )
-  } yield lines
+  } yield TextFile(lines)
 
 
   // suite which uses shared resource
-  val suites: List[String] => Stream[IO, Test] = lines => Stream(
+  val suites: TextFile => Stream[IO, Test] = textFile => Stream(
     pureTest("the file has one line") {
-      expect(lines.size == 1)
+      expect(textFile.lines.size == 1)
     },
     pureTest("the file has the expected content") {
-      expect(lines == List("Hello, there!"))    
+      expect(textFile.lines == List("Hello, there!"))    
     }
   )
 
   // construct `suitesStream` by acquiring resource and passing that to your `suite` via `flatMap`
-  override def suitesStream: fs2.Stream[IO, Test] =
+  override def suitesStream: Stream[IO, Test] =
     Stream.resource(sharedResource).flatMap { res =>
       suites(res)
     }
@@ -206,10 +203,9 @@ by `flatMap`-ping over the shared resource, and providing the necessary resource
 ```scala
 package com.dimitarg.example.sharedres
 
-import fs2.Stream
 import cats.effect.{IO, Resource}
+import fs2.Stream
 import weaver.pure._
-
 
 final case class FooResource()
 final case class BarResource(value: Int)
@@ -246,7 +242,7 @@ object ExampleSharedResSuite extends Suite {
       expect(res.bar.value == 42)
   })
 
-  override def suitesStream: fs2.Stream[IO, Test] =
+  override def suitesStream: Stream[IO, Test] =
     Stream.resource(mkSharedResource).flatMap { r =>
       suiteUsingAllResources(r) ++
       FooSuite.all(r.foo) ++

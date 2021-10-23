@@ -1,9 +1,8 @@
 package com.dimitarg.example.sharedres
 
-import fs2.Stream
 import cats.effect.{IO, Resource}
+import fs2.Stream
 import weaver.pure._
-
 
 final case class FooResource()
 final case class BarResource(value: Int)
@@ -40,7 +39,7 @@ object ExampleSharedResSuite extends Suite {
       expect(res.bar.value == 42)
   })
 
-  override def suitesStream: fs2.Stream[IO, Test] =
+  override def suitesStream: Stream[IO, Test] =
     Stream.resource(mkSharedResource).flatMap { r =>
       suiteUsingAllResources(r) ++
       FooSuite.all(r.foo) ++
