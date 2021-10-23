@@ -254,3 +254,114 @@ object ExampleSharedResSuite extends Suite {
 Notes:
 - `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `A => Stream[IO, Test]` values. This of course also means they would not be auto-discoverable or runnable on their own. A small price to pay for 
 principled, resource-safe test setup and teardown.
+
+# Misc
+
+## Filtering
+
+Filtering support is equivalent to vanilla `weaver-test`.
+
+### `sbt`
+
+Filter by suite name:
+
+```
+testOnly *ExampleSuite
+```
+```
+[info] com.dimitarg.example.ExampleSuite
+[info] + a pure test 9ms
+[info] + another pure test 9ms
+[info] + an effectful test 8ms
+[info] Passed: Total 3, Failed 0, Errors 0, Passed 3
+```
+
+Filter by test name:
+
+```
+testOnly -- -o *file*
+```
+```
+acquiring shared resource
+[info] com.dimitarg.example.sharedres.ExampleSharedResSuite
+[info] com.dimitarg.example.ExampleSuite
+[info] com.dimitarg.example.ExampleResSuite
+[info] + the file has one line 7ms
+[info] + the file has the expected content 7ms
+[info] Passed: Total 2, Failed 0, Errors 0, Passed 2
+```
+
+Filter by suite name and test name:
+
+```
+testOnly *ExampleResSuite -- -o *expected*
+```
+
+```
+[info] com.dimitarg.example.ExampleResSuite
+[info] + the file has the expected content 6ms
+[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
+```
+
+### `bloop`
+
+Filter by suite name:
+
+```
+bloop test weaver-test-extra -o "*ExampleSharedResSuite"
+```
+```
+com.dimitarg.example.sharedres.ExampleSharedResSuite
++ some test 17ms
++ the foo foos 16ms
++ a barsuite test 10ms
+Execution took 43ms
+3 tests, 3 passed
+All tests in com.dimitarg.example.sharedres.ExampleSharedResSuite passed
+```
+
+Filter by test name:
+
+```
+bloop test weaver-test-extra -- -o "*file*"
+```
+```
+acquiring shared resource
+com.dimitarg.example.ExampleResSuite
++ the file has one line 12ms
++ the file has the expected content 12ms
+Execution took 24ms
+2 tests, 2 passed
+All tests in com.dimitarg.example.ExampleResSuite passed
+
+com.dimitarg.example.ExampleSuite
+Execution took 0ms
+No test suite was run
+
+com.dimitarg.example.sharedres.ExampleSharedResSuite
+Execution took 0ms
+No test suite was run
+
+===============================================
+Total duration: 24ms
+1 passed
+===============================================
+```
+
+Filter by suite name and test name:
+
+```
+bloop test weaver-test-extra -o "*ExampleResSuite" -- -o "*expected*"
+```
+``` 
+com.dimitarg.example.ExampleResSuite
++ the file has the expected content 8ms
+Execution took 8ms
+1 tests, 1 passed
+All tests in com.dimitarg.example.ExampleResSuite passed
+
+===============================================
+Total duration: 8ms
+All 1 test suites passed.
+===============================================
+```
