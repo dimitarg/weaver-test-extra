@@ -33,10 +33,10 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.7.4"
-libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "0.7.4"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.7.7"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "0.7.7"
 
-libraryDependencies += "co.fs2" %% "fs2-io" % "3.1.3" % "test"
+libraryDependencies += "co.fs2" %% "fs2-io" % "3.1.6" % "test"
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
