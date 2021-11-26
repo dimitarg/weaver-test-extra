@@ -34,7 +34,7 @@ See also [this article](https://dimitarg.github.io/pure-testing-scala/) for a mo
 
 # Getting started 
 
-0. Obtain the current version number by looking for the latest [release](https://github.com/dimitarg/weaver-test-extra/releases) of this library
+0. Obtain the current version number by looking for the latest [release](https://github.com/dimitarg/weaver-test-extra/tags) of this library
 
 1. Add the following dependency to your build
 
