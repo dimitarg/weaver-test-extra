@@ -4,10 +4,10 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.7"
-ThisBuild / crossScalaVersions := Seq("2.13.7", "2.12.15")
+ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / crossScalaVersions := Seq("2.13.8", "2.12.15")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.7", "2.12.15")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.8", "2.12.15")
 ThisBuild / githubWorkflowBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
