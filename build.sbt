@@ -4,10 +4,10 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.7"
-ThisBuild / crossScalaVersions := Seq("2.13.7", "2.12.15")
+ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / crossScalaVersions := Seq("2.13.8", "2.12.15")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.7", "2.12.15")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.8", "2.12.15")
 ThisBuild / githubWorkflowBuild := Seq(WorkflowStep.Sbt(List("coverage", "test", "coverageReport")))
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
@@ -33,10 +33,10 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.7.7"
-libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "0.7.7"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-scalacheck" % "0.7.11"
+libraryDependencies +=  "com.disneystreaming" %% "weaver-cats" % "0.7.11"
 
-libraryDependencies += "co.fs2" %% "fs2-io" % "3.2.2" % "test"
+libraryDependencies += "co.fs2" %% "fs2-io" % "3.2.7" % "test"
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
