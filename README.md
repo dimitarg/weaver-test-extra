@@ -1,6 +1,9 @@
  [![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
  ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
+
+**Versions of this library prior to 0.5.0 work incorrectly, see https://github.com/dimitarg/weaver-test-extra/pull/152.
+This readme is out-of-date, specifically example code. It will be updated shortly.**
 # weaver-test-extra
 
 > "Constraints liberate, liberties constrain." - Rúnar Bjarnason
