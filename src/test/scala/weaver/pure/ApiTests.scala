@@ -10,7 +10,7 @@ object ApiTest extends Suite {
     test("`test` raises IO errors as Expectations failures") {
       val tst = test("something")(IO.raiseError(SomeError))
       tst.map { result =>
-        expect(result.run().run.isInvalid) // as opposed to this raising an io error and failing the test
+        expect(result.run.run.isInvalid) // as opposed to this raising an io error and failing the test
       }
     }
   ))

@@ -23,7 +23,8 @@ object ExampleTracedSuite extends Suite {
     Stream.resource(makeEntryPoint.flatMap(_.root("ExampleTracedSuite"))).flatMap { implicit rootSpan =>
       val service = SomeTracedService.apply[App]
       tracedParSuite("Service tests")(serviceTests(service)) ++
-        tracedSeqSuite("Some other tests")(someOtherTests)
+        tracedSeqSuite("Some other tests")(someOtherTests) ++
+        tracedParSuite("Test errors")(failingTests)
     }
 
   def serviceTests(service: SomeTracedService[App]): List[TracedTest] = List(
@@ -44,6 +45,15 @@ object ExampleTracedSuite extends Suite {
     tracedTest("some other test 2") { span => 
       span.put("app.important.info" -> 42)
         .as(expect(2 === 2))
+    }
+  )
+
+  def failingTests: List[TracedTest] = List(
+    tracedTest("fail with IO error") { _ =>
+      IO.raiseError(new RuntimeException("failed I have"))
+    },
+    tracedTest("fail with expectation failure") { _ =>
+      {expect(1 === 2) and expect(6 === 18)}.pure[IO]
     }
   )
 

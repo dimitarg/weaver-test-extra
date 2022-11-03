@@ -4,9 +4,9 @@ import cats.data.ReaderT
 import cats.effect.IO
 import fs2.Stream
 import natchez.Span
+
 import weaver.{SourceLocation, Expectations}
-import cats.data.NonEmptyList
-import weaver.AssertionException
+import util._
 
 package object traced {
 
@@ -17,21 +17,16 @@ package object traced {
       parent.span(name).use{ span =>
         weaver.pure.test(name)(run(span))
           .flatTap { test =>
-            traceExpectationFailures(span, test.run())
+            traceExpectationFailures(span, test)
           }
       }
     }
 
-  private def traceExpectationFailures(span: Span[IO], x: Expectations): IO[Unit] =
-    x.run.fold(
-      xs => span.put("test.expectation.error" -> assertionExceptionsToString(xs)),
+  private def traceExpectationFailures(span: Span[IO], x: Test): IO[Unit] =
+    x.run.run.fold(
+      _ => span.put("test.expectation.error" -> outcomeToString(toTestOutcome(x))),
       _ => IO.unit
     )
-
-  private def assertionExceptionsToString(xs: NonEmptyList[AssertionException]): String =
-    xs.toList.map { x =>
-      (x.message :: x.locations.toList.map(_.toString())).mkString("\n")
-    }.mkString("\n")
 
   def tracedParSuite(name: String)(suite: List[TracedTest])(implicit rootSpan: Span[IO]): Stream[IO,Test] =
     tracedSuite(weaver.pure.parSuite)(name)(suite)(rootSpan)
