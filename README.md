@@ -1,6 +1,9 @@
  [![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
  ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
+
+**Versions of this library prior to 0.5.0 work incorrectly, see https://github.com/dimitarg/weaver-test-extra/pull/152.
+This readme is out-of-date, specifically example code. It will be updated shortly.**
 # weaver-test-extra
 
 > "Constraints liberate, liberties constrain." - Rúnar Bjarnason
@@ -17,7 +20,7 @@ in order to compute the tests in a test suite (i.e. "register" a test).
 
 # Why this library exists
 
-Registration of a test to be ran by vanilla `weaver-test` rouglhy takes the form:
+Registration of a test to be ran by vanilla `weaver-test` roughly takes the form:
 
 ```scala
 def register(test: Test): Unit
@@ -29,7 +32,7 @@ tests to be ran, our test suite becomes a referentially transparent expression, 
 One very practical benefit of that is principled resource sharing and suite setup / teardown, which in a referentially transparent world are simply achieved via `Resource` / `Stream` and passing parameters to functions.
 
 See also [this article](https://dimitarg.github.io/pure-testing-scala/) for a more verbose treatment of why purely functional testing is a good idea. 
-*(The above article is outdated as it uses an old vesion of this library which had an unnecessarily compplicated API, but the principles still apply.)*
+*(The above article is outdated as it uses an old version of this library which had an unnecessarily complicated API, but the principles still apply.)*
 
 
 # Getting started 
