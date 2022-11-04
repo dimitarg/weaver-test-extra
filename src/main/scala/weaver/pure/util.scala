@@ -15,6 +15,6 @@ private [pure] object util {
 
   def toTestOutcome(test: Test): TestOutcome = WeaverTest.pure(test.name.name)(() => test.run)
 
-  def outcomeToString(x: TestOutcome): String = x.formatted(TestOutcome.Summary)
+  def outcomeToString(x: TestOutcome): String = x.formatted(TestOutcome.Verbose)
     
 }
