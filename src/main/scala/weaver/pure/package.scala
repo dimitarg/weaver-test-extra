@@ -17,4 +17,5 @@ package object pure extends Expectations.Helpers {
 
   def parSuite(tests: List[IO[Test]]): Stream[IO, Test] = Stream.evals(tests.parTraverse(identity))
 
+  def seqSuite(tests: List[IO[Test]]): Stream[IO, Test] = Stream.evals(tests.sequence)
 }

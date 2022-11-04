@@ -32,7 +32,7 @@ package object traced {
     tracedSuite(weaver.pure.parSuite)(name)(suite)(rootSpan)
   
   def tracedSeqSuite(name: String)(suite: List[TracedTest])(implicit rootSpan: Span[IO]): Stream[IO,Test] =
-    tracedSuite(weaver.pure.parSuite)(name)(suite)(rootSpan)
+    tracedSuite(weaver.pure.seqSuite)(name)(suite)(rootSpan)
     
   def tracedSuite(toStream: List[IO[Test]] => Stream[IO, Test])(name: String)(suite: List[TracedTest]): Span[IO] => Stream[IO,Test] =
     parent => 
