@@ -4,10 +4,11 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.8"
-ThisBuild / crossScalaVersions := Seq("2.13.8", "2.12.15")
+ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / crossScalaVersions := Seq("2.13.10", "2.12.17")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.8", "2.12.15")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.10", "2.12.17")
+
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     commands = List("coverage", "test"),
@@ -41,7 +42,7 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-val weaverVersion = "0.7.15"
+val weaverVersion = "0.8.1"
 val natchezVersion = "0.1.6"
 
 libraryDependencies ++=Seq(
@@ -51,7 +52,7 @@ libraryDependencies ++=Seq(
 
   "org.tpolecat" %% "natchez-noop" % natchezVersion % "test",
   "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
-  "co.fs2" %% "fs2-io" % "3.2.14" % "test",
+  "co.fs2" %% "fs2-io" % "3.4.0" % "test",
 )  
 
 
