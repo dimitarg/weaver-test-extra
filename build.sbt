@@ -42,7 +42,7 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-val weaverVersion = "0.7.15"
+val weaverVersion = "0.8.1"
 val natchezVersion = "0.1.6"
 
 libraryDependencies ++=Seq(
