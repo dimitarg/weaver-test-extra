@@ -2,8 +2,7 @@
  ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
 
-**Versions of this library prior to 0.5.0 work incorrectly, see https://github.com/dimitarg/weaver-test-extra/pull/152.
-This readme is out-of-date, specifically example code. It will be updated shortly.**
+**Versions of this library prior to 0.5.0 work incorrectly and should not be used, see https://github.com/dimitarg/weaver-test-extra/pull/152**
 # weaver-test-extra
 
 > "Constraints liberate, liberties constrain." - Rúnar Bjarnason
@@ -54,30 +53,86 @@ add the following to your project settings
 
 # Base concepts
 
-, of which there is just one.
+> This section explains the library design, motivation and implications. If you instead prefer to get started coding, feel free to skip this and jump to usage examples.
 
-## Test
 
-A test is defined as follows:
+A pure test, i.e. a test that does not perform `IO`, is instantiated via:
+
+```
+def pureTest(name: String)(run: => Expectations)(implicit loc: SourceLocation): Test
+```
+, where `Test` is defined as
 
 ```scala
-final case class Test(name: String, run: IO[Expectations])
+final case class Test(name: String, run: Expectations)
 ```
 
-That is to say, a test has a name, returns а test result
-`Expectations`, and is allowed to perform `IO` while doing so.
+A test that performs `IO` is instantiated via
 
+```scala
+def test(name: String)(run: IO[Expectations])(implicit loc: SourceLocation): IO[Test]
+```
 
-## Creating a `Test`
+Note the return type, `IO[Test]`.
 
-... can be done by constructing an instance of the above data type, either by calling its data constructor or 
-via the function `weaver.pure.test`.
+A test suite is a runnable collection of tests and has type
+```scala
+def suitesStream: Stream[IO, Test]
+```
+
+To construct a suite runnable by `sbt` / `bsp` / `code`, extend `weaver.pure.Suite`:
+
+```scala
+object ExampleSuite extends Suite {
+
+  override def suitesStream: Stream[IO, Test] = ???
+}
+```
+
+Two convenience methods are provided to go from `List[IO[Test]]` to `Stream[IO, Test]`, running the tests in your suite either parallel, or sequentially.
+
+```scala
+  def parSuite(tests: List[IO[Test]]): Stream[IO, Test] = Stream.evals(tests.parTraverse(identity))
+
+  def seqSuite(tests: List[IO[Test]]): Stream[IO, Test] = Stream.evals(tests.sequence)
+```
+
+## Implications 
+
+All the above is to say, a test suite or its comprising tests can **only perform `IO` as part of their corresponding `Stream[IO, *]`**.
+
+This is a deliberate design choice with positive and negative implications:
+
+- Because `IO` is only ever performed as part of the surrounding stream, it is safe to provide test fixtures and resources inside the `Stream` scope, for example
+
+```scala
+Stream.resource(makeTestContainers).flatMap { containersUp =>
+  yourSuitesStreamHere(contanersUp)
+}
+```
+
+- Because suites have type `Stream[IO, Test]`, you can compose suites together, control parallelism, 
+control test execution order, impose determinism of lack thereof, etc, via regular stream combinators, for example `parJoin`, `++`, `map`, `flatMap`, `evals` etc. That is to say, suite-level control flow and parallelism is achieved via reguar programming and you don't have to mess with test DSLs, build tool flags and such.
+
+- On the downside, the expression type `Stream[IO, Test]` and the fact that `Test` by itself cannot perform `IO`, means that there is no separation between "constructing a suite" and "running tests". Said another way, we cannot compute the collection of tests to be ran separately from actually running the tests.
+- Specifically, this means that filtering of tests inside a test suite **is not and cannot be supported in this library**. While test filtering is unsupported, it's still possible to filter across `Suite`s, via the standard `sbt` / `bsp` means.
+
+## Should I be using this library?
+
+In essence, what we've done here is we obtained the ability to perform test resource management and test suite composition via standard `fs2.Stream` means. In the process though, we have lost the ability to perform any static introspection of the test suite structure.
+
+Both of these are due to admitting an extremely general type for test suite expressions: `Stream[IO, Test]`.
+
+Whether you should be using this library boils down to whether you find principled resource management and suite composition more valuable than static suite introspection and suite filtering.
+
+Lastly, this minimal library is just one point in the solution space. You may decide to explore this solution space on your own, for example by using the core premise of the library (test suites are expressions), but ascribing a less general type to a suite, to better suit your needs.
+
 
 # Usage example
 
 ## Hello world
 
-Here is a simple suite. You create one by extending `weaver.pure.Suite`, which requires returning a `fs2.Stream` of tests:
+Here is a simple suite. You create one by extending `weaver.pure.Suite`:
 
 ```scala
 package com.dimitarg.example
@@ -91,31 +146,24 @@ import weaver.pure._
 object ExampleSuite extends Suite {
 
   override def suitesStream: Stream[IO, Test] = Stream(
-      pureTest("a pure test") {
-          val x = 1
-          expect(x == 1)
-      },
-      pureTest("another pure test") {
-        val xs = List()
-        expect(xs == List())
-      },
-      test("an effectful test") {
-        for {
-          now <- IO(Instant.now())
-          _ <- IO(println(s"current time: $now"))
-        } yield expect(1 == 1)
-      }
+    pureTest("a pure test") {
+      val x = 1  
+      expect(x == 1)
+    },
+    pureTest("another pure test") {
+      val xs = List()
+      expect(xs == List())
+    }
+  ) ++ Stream.eval(
+    test("an effectful test") {
+      for {
+        now <- IO(Instant.now())
+        _ <- IO(println(s"current time: $now"))
+      } yield expect(1 == 1)
+    }
   )
 }
 ```
-
-This is pretty much 1:1 with what you'd write in `weaver-test` vanilla; with the important distinction
-that the function `test` returns a value of type `Test`, instead of performing a side effect to register the test in some internal mutable state.
-
-A note on types:
-- use `pureTest` when your test body has type `Expectations`, i.e. no effects are performed by the test
-- use `test` when your test body has type `IO[Expectations]` 
-- `pureTest("foo"){ expect(1 == 1) }` is just syntax sugar for `test("foo"){ expect(1 == 1).pure[IO] }`
 
 ## Suite of tests that share a common resource
 
@@ -255,116 +303,129 @@ object ExampleSharedResSuite extends Suite {
 ```
 
 Notes:
-- `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `A => Stream[IO, Test]` values. This of course also means they would not be auto-discoverable or runnable on their own. A small price to pay for 
-principled, resource-safe test setup and teardown.
+- `FooSuite` and `BarSuite` do not need to extend anything from `weaver-test` or `weaver-test-extra`, they are just containers of `A => Stream[IO, Test]` values. This of course also means they would not be auto-discoverable or runnable on their own.
 
-# Misc
+# Tracing
 
-## Filtering
+`weaver.pure.traced` supports test tracing via `natchez`. The example uses the honeycomb backend.
 
-Filtering support is equivalent to vanilla `weaver-test`.
+```scala
+package com.dimitarg.example.traced
 
-### `sbt`
+import scala.jdk.CollectionConverters._
 
-Filter by suite name:
+import scala.concurrent.duration._
+import cats.~>
+import cats.arrow.FunctionK
+import cats.data.ReaderT
+import cats.implicits._
+import cats.effect.{IO, Temporal, Resource}
+import fs2._
+import natchez.{Trace, Span}
+import natchez.Trace.kleisliInstance
 
-```
-testOnly *ExampleSuite
-```
-```
-[info] com.dimitarg.example.ExampleSuite
-[info] + a pure test 9ms
-[info] + another pure test 9ms
-[info] + an effectful test 8ms
-[info] Passed: Total 3, Failed 0, Errors 0, Passed 3
+import weaver.pure._
+import weaver.pure.traced._
+import natchez.EntryPoint
+import com.dimitarg.example.util.IntegrationTestConfig
+
+object ExampleTracedSuite extends Suite {
+
+    override def suitesStream: Stream[IO,Test] =
+    Stream.resource(makeEntryPoint.flatMap(_.root("ExampleTracedSuite"))).flatMap { implicit rootSpan =>
+      val service = SomeTracedService.apply[App]
+      tracedParSuite("Service tests")(serviceTests(service)) ++
+        tracedSeqSuite("Some other tests")(someOtherTests)
+    }
+
+  def serviceTests(service: SomeTracedService[App]): List[TracedTest] = List(
+    tracedTest("SomeTracedService.foo test") { span =>
+      service.translate(provideSpan(span)).foo
+        .as(success) 
+    },
+    tracedTest("SomeTracedService.bar test") { span =>
+      service.translate(provideSpan(span)).bar
+        .as(success) 
+    }
+  )
+
+  def someOtherTests: List[TracedTest] = List(
+    tracedTest("some other test 1") { _ =>
+      expect(1 === 1).pure[IO]
+    },
+    tracedTest("some other test 2") { span => 
+      span.put("app.important.info" -> 42)
+        .as(expect(2 === 2))
+    }
+  )
+
+  private val makeEntryPoint: Resource[IO, EntryPoint[IO]] = for {
+    testConfig <- Resource.eval(IntegrationTestConfig.load)
+    result <- testConfig match {
+      case IntegrationTestConfig.CI(hcKey) =>
+        natchez.honeycomb.Honeycomb.entryPoint[IO](
+          service = "weaver-test-extra-tests"
+         ) { builder =>
+          IO.delay {
+            builder
+              .setDataset("weaver-test-extra-tests")
+              .setWriteKey(hcKey)
+              .setGlobalFields(
+                Map(
+                  "service_name" -> "weaver-test-extra-tests",
+                ).asJava
+              )
+              .build
+          }
+        }
+      case IntegrationTestConfig.NotCI =>
+        natchez.noop.NoopEntrypoint.apply[IO]().pure[Resource[IO, *]]
+    }
+  } yield result
+
+  type App[A] = ReaderT[IO, Span[IO], A]
+
+  def provideSpan(span: Span[IO]): App ~> IO = {
+    def provide[A](x: App[A]): IO[A] = x.run(span)
+    FunctionK.lift(provide)
+  }
+
+}
+
+sealed trait SomeTracedService[F[_]] {
+  val foo: F[Unit]
+  val bar: F[Unit]
+
+  def translate[G[_]](fg: F ~> G): SomeTracedService[G] = {
+    val underlying = this
+
+    new SomeTracedService[G] {
+
+      override val foo: G[Unit] = fg(underlying.foo)
+
+      override val bar: G[Unit] = fg(underlying.bar)
+    }
+  }
+}
+
+object SomeTracedService {
+  def apply[F[_]: Trace: Temporal] = new SomeTracedService[F] {
+
+    override val foo: F[Unit] = Trace[F].span("SomeTracedService.foo") {
+      for {
+        _ <- Temporal[F].sleep(10.millis)
+      } yield ()
+    }
+
+    override val bar: F[Unit] = Trace[F].span("SomeTracedService.bar") {
+      for {
+        _ <- Temporal[F].sleep(50.millis)
+      } yield ()
+    }
+  }
+}
 ```
 
-Filter by test name:
+Example trace generated by this test:
 
-```
-testOnly -- -o *file*
-```
-```
-acquiring shared resource
-[info] com.dimitarg.example.sharedres.ExampleSharedResSuite
-[info] com.dimitarg.example.ExampleSuite
-[info] com.dimitarg.example.ExampleResSuite
-[info] + the file has one line 7ms
-[info] + the file has the expected content 7ms
-[info] Passed: Total 2, Failed 0, Errors 0, Passed 2
-```
-
-Filter by suite name and test name:
-
-```
-testOnly *ExampleResSuite -- -o *expected*
-```
-
-```
-[info] com.dimitarg.example.ExampleResSuite
-[info] + the file has the expected content 6ms
-[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
-```
-
-### `bloop`
-
-Filter by suite name:
-
-```
-bloop test weaver-test-extra -o "*ExampleSharedResSuite"
-```
-```
-com.dimitarg.example.sharedres.ExampleSharedResSuite
-+ some test 17ms
-+ the foo foos 16ms
-+ a barsuite test 10ms
-Execution took 43ms
-3 tests, 3 passed
-All tests in com.dimitarg.example.sharedres.ExampleSharedResSuite passed
-```
-
-Filter by test name:
-
-```
-bloop test weaver-test-extra -- -o "*file*"
-```
-```
-acquiring shared resource
-com.dimitarg.example.ExampleResSuite
-+ the file has one line 12ms
-+ the file has the expected content 12ms
-Execution took 24ms
-2 tests, 2 passed
-All tests in com.dimitarg.example.ExampleResSuite passed
-
-com.dimitarg.example.ExampleSuite
-Execution took 0ms
-No test suite was run
-
-com.dimitarg.example.sharedres.ExampleSharedResSuite
-Execution took 0ms
-No test suite was run
-
-===============================================
-Total duration: 24ms
-1 passed
-===============================================
-```
-
-Filter by suite name and test name:
-
-```
-bloop test weaver-test-extra -o "*ExampleResSuite" -- -o "*expected*"
-```
-``` 
-com.dimitarg.example.ExampleResSuite
-+ the file has the expected content 8ms
-Execution took 8ms
-1 tests, 1 passed
-All tests in com.dimitarg.example.ExampleResSuite passed
-
-===============================================
-Total duration: 8ms
-All 1 test suites passed.
-===============================================
-```
+![Sample trace](assets/sample-trace.png)
