@@ -52,7 +52,7 @@ libraryDependencies ++=Seq(
 
   "org.tpolecat" %% "natchez-noop" % natchezVersion % "test",
   "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
-  "co.fs2" %% "fs2-io" % "3.2.14" % "test",
+  "co.fs2" %% "fs2-io" % "3.4.0" % "test",
 )  
 
 
