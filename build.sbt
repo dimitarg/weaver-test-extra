@@ -4,10 +4,11 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.8"
-ThisBuild / crossScalaVersions := Seq("2.13.8", "2.12.17")
+ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / crossScalaVersions := Seq("2.13.10", "2.12.17")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.8", "2.12.17")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.10", "2.12.17")
+
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     commands = List("coverage", "test"),
