@@ -42,8 +42,9 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-val weaverVersion = "0.8.1"
-val natchezVersion = "0.3.0"
+val weaverVersion = "0.8.3"
+val natchezVersion = "0.3.2"
+val fs2Version = "3.7.0"
 
 libraryDependencies ++=Seq(
   "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,
@@ -52,7 +53,7 @@ libraryDependencies ++=Seq(
 
   "org.tpolecat" %% "natchez-noop" % natchezVersion % "test",
   "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
-  "co.fs2" %% "fs2-io" % "3.4.0" % "test",
+  "co.fs2" %% "fs2-io" % fs2Version % "test",
 )  
 
 
