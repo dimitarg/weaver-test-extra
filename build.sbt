@@ -35,7 +35,7 @@ ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
 ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
   List(
     "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
-    "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A5131D4F48321D6E",
+    "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 7A723A868B1FD65C8108ACAF00437AAD7A33298A",
     "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
   )
 ))
@@ -63,7 +63,7 @@ addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersi
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-usePgpKeyHex("B08DBE76A33A8E25468188D5A5131D4F48321D6E")
+usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A")
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
