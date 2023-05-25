@@ -8,3 +8,4 @@ target
 metals.sbt
 .vscode
 .bsp/
+.direnv/
