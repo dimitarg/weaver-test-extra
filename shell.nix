@@ -8,6 +8,5 @@ in
     buildInputs = [
       pkgs.${jdk}
       pkgs.sbt
-      pkgs.awscli2
     ];
   }
