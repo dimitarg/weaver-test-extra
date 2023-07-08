@@ -1,5 +1,5 @@
 addSbtPlugin("com.codecommit" % "sbt-github-actions" % "0.14.2")
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.4.2")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.4.3")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.7")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.20")
