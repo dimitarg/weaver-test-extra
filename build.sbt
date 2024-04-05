@@ -61,7 +61,7 @@ libraryDependencies ++=Seq(
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
-addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
+addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
