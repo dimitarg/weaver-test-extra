@@ -1,7 +1,7 @@
 {
   nixpkgs = fetchTarball {
-    name   = "nixpkgs-b0f55fa3088be36dc4651b693bb1a3b4e1ab412d";
-    url    = "https://github.com/NixOS/nixpkgs/archive/b0f55fa3088be36dc4651b693bb1a3b4e1ab412d.tar.gz";
+    name   = "nixpkgs-ae3ab7fe0c7eb9a3a894952ebe632694d1f1ba49";
+    url    = "https://github.com/NixOS/nixpkgs/archive/ae3ab7fe0c7eb9a3a894952ebe632694d1f1ba49.tar.gz";
     # sha256 = "";
   };
 }

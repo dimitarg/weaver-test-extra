@@ -8,6 +8,7 @@ ThisBuild / scalaVersion := "2.13.13"
 ThisBuild / crossScalaVersions := Seq("2.13.13", "2.12.19")
 
 ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.13", "2.12.19")
+ThisBuild / githubWorkflowJavaVersions  := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
