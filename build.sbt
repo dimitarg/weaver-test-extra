@@ -4,10 +4,10 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.10"
-ThisBuild / crossScalaVersions := Seq("2.13.10", "2.12.17")
+ThisBuild / scalaVersion := "2.13.13"
+ThisBuild / crossScalaVersions := Seq("2.13.13", "2.12.19")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.10", "2.12.17")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.13", "2.12.19")
 
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
@@ -44,8 +44,9 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
 val weaverVersion = "0.8.4"
-val natchezVersion = "0.3.2"
-val fs2Version = "3.7.0"
+val natchezVersion = "0.3.5"
+val fs2Version = "3.10.2"
+
 
 libraryDependencies ++=Seq(
   "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,
@@ -60,7 +61,7 @@ libraryDependencies ++=Seq(
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
-addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
+addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
