@@ -47,7 +47,7 @@ ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross wi
 
 val weaverVersion = "0.8.4"
 val natchezVersion = "0.3.5"
-val fs2Version = "3.10.2"
+val fs2Version = "3.11.0"
 
 
 libraryDependencies ++=Seq(
