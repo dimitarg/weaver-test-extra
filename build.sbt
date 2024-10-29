@@ -75,8 +75,7 @@ usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A")
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
-sonatypeCredentialHost := "s01.oss.sonatype.org"
-sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+sonatypeCredentialHost := sonatypeCentralHost
 
 ThisBuild / publishMavenStyle := true
 
