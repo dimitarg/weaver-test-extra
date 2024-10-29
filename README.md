@@ -16,7 +16,6 @@ Currently, the following functionality is provided
 Provides minimal, ready-to-use API to `weaver-test`, that does not perform side effects
 in order to compute the tests in a test suite (i.e. "register" a test).
 
-
 # Why this library exists
 
 Registration of a test to be ran by vanilla `weaver-test` roughly takes the form:
