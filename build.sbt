@@ -4,20 +4,24 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.13"
-ThisBuild / crossScalaVersions := Seq("2.13.13", "2.12.19")
+ThisBuild / scalaVersion := "2.13.15"
+ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.15", "2.12.20")
 
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.13", "2.12.19")
 ThisBuild / githubWorkflowJavaVersions  := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
-    commands = List("coverage", "test"),
+    // scoverage plugin not yet supporting scala 2.13.15
+    // commands = List("coverage", "test"),
+    commands = List("test"),
+
     env = Map(
       "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}",
     )
   ),
-  WorkflowStep.Sbt(List("coverageReport")),
+  // scoverage plugin not yet supporting scala 2.13.15
+  // WorkflowStep.Sbt(List("coverageReport")),
 )
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
@@ -46,9 +50,9 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
 val weaverVersion = "0.8.4"
-val natchezVersion = "0.3.5"
-val fs2Version = "3.10.2"
 
+val natchezVersion = "0.3.7"
+val fs2Version = "3.11.0"
 
 libraryDependencies ++=Seq(
   "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,

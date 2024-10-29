@@ -10,12 +10,12 @@ import weaver.pure._
 
 object ExampleResSuite extends Suite {
 
-  // shared resource
+  // shared resource  
   final case class TextFile(lines: List[String])
 
   // describe how to acquire shared resource
   val sharedResource: Resource[IO, TextFile] = for {
-    ec <- Resource.make(
+    _ <- Resource.make(
         IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
     )( x =>
         IO(x.shutdown)
