@@ -1,6 +1,7 @@
 addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.24.0")
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2")
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.12")
+// scoverage plugin not yet supporting scala 2.13.15
+// addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.12")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.0")
