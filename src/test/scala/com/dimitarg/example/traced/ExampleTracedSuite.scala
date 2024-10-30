@@ -75,7 +75,7 @@ object ExampleTracedSuite extends Suite {
 
   def provideSpan(span: Span[IO]): App ~> IO = {
     def provide[A](x: App[A]): IO[A] = x.run(span)
-    FunctionK.lift(provide)
+    FunctionK.liftFunction(provide)
   }
 
 }
