@@ -12,7 +12,7 @@ object IntegrationTestConfig {
     override def toString = "IntegrationTestConfig.CI()"
   }
 
-  final case object NotCI extends IntegrationTestConfig
+  case object NotCI extends IntegrationTestConfig
 
   def load: IO[IntegrationTestConfig] = for {
     isCi <- IO.delay {

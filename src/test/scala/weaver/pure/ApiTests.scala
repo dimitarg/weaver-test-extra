@@ -19,5 +19,5 @@ object ApiTest extends Suite {
     )
   )
 
-  final case object SomeError extends Exception with NoStackTrace
+  case object SomeError extends Exception with NoStackTrace
 }
