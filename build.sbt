@@ -68,7 +68,23 @@ libraryDependencies ++=Seq(
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
-addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+libraryDependencies ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, n)) =>
+      List(
+        compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+      )
+    case _ =>
+      Nil
+  }
+}
+
+ThisBuild / scalacOptions ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Ykind-projector:underscores")
+    case Some((2, 12 | 13)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+  }
+}
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
