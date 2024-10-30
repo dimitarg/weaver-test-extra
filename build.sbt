@@ -12,6 +12,9 @@ ThisBuild / githubWorkflowJavaVersions  := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
+    commands = List("scalafmtCheck")
+  ),
+  WorkflowStep.Sbt(
     // scoverage plugin not yet supporting scala 2.13.15
     // commands = List("coverage", "test"),
     commands = List("test"),

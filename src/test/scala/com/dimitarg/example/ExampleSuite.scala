@@ -10,7 +10,7 @@ object ExampleSuite extends Suite {
 
   override def suitesStream: Stream[IO, Test] = Stream(
     pureTest("a pure test") {
-      val x = 1  
+      val x = 1
       expect(x == 1)
     },
     pureTest("another pure test") {

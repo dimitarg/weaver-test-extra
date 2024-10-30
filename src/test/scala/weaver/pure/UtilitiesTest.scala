@@ -8,7 +8,7 @@ import util._
 
 object UtilitiesTest extends Suite {
 
-  override def suitesStream: Stream[IO,Test] = Stream(
+  override def suitesStream: Stream[IO, Test] = Stream(
     pureTest("outcomeToString") {
 
       val test = Test("some test", expect(1 === 2))
@@ -16,10 +16,8 @@ object UtilitiesTest extends Suite {
 
       expect(asString.contains("UtilitiesTest.scala")) and
         expect(asString.contains("expect(1 === 2)"))
-      
-    }
 
+    }
   )
 
-  
 }
