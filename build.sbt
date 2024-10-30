@@ -5,8 +5,8 @@ name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
 ThisBuild / scalaVersion := "2.13.15"
-ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20")
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.15", "2.12.20")
+ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20", "3.3.4")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.15", "2.12.20", "3.3.4")
 
 ThisBuild / githubWorkflowJavaVersions  := Seq(JavaSpec.temurin("21"))
 
@@ -34,9 +34,10 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 
 ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
-  commands = List("bash <(curl -s https://codecov.io/bash)")
-))
+// scoverage plugin not yet supporting scala 2.13.15
+// ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
+//   commands = List("bash <(curl -s https://codecov.io/bash)")
+// ))
 
 ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
   List(
