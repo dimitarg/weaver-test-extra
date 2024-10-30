@@ -5,12 +5,15 @@ name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
 ThisBuild / scalaVersion := "2.13.15"
-ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20")
-ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.15", "2.12.20")
+ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20", "3.3.4")
+ThisBuild / githubWorkflowScalaVersions  := Seq("2.13.15", "2.12.20", "3.3.4")
 
 ThisBuild / githubWorkflowJavaVersions  := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / githubWorkflowBuild := Seq(
+  WorkflowStep.Sbt(
+    commands = List("scalafmtCheck")
+  ),
   WorkflowStep.Sbt(
     // scoverage plugin not yet supporting scala 2.13.15
     // commands = List("coverage", "test"),
@@ -34,9 +37,10 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 
 ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
-  commands = List("bash <(curl -s https://codecov.io/bash)")
-))
+// scoverage plugin not yet supporting scala 2.13.15
+// ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
+//   commands = List("bash <(curl -s https://codecov.io/bash)")
+// ))
 
 ThisBuild / githubWorkflowPublishPreamble := Seq(WorkflowStep.Run(
   List(
@@ -67,7 +71,23 @@ libraryDependencies ++=Seq(
 
 testFrameworks += new TestFramework("weaver.framework.CatsEffect")
 
-addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+libraryDependencies ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, n)) =>
+      List(
+        compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+      )
+    case _ =>
+      Nil
+  }
+}
+
+ThisBuild / scalacOptions ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 12 | 13)) => Seq("-Xsource:3-cross", "-P:kind-projector:underscore-placeholders")
+    case _ => Nil
+  }
+}
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 

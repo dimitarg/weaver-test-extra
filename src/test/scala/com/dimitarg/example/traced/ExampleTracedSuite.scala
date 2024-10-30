@@ -19,21 +19,27 @@ import com.dimitarg.example.util.IntegrationTestConfig
 
 object ExampleTracedSuite extends Suite {
 
-    override def suitesStream: Stream[IO,Test] =
-    Stream.resource(makeEntryPoint.flatMap(_.root("ExampleTracedSuite"))).flatMap { implicit rootSpan =>
-      val service = SomeTracedService.apply[App]
-      tracedParSuite("Service tests")(serviceTests(service)) ++
-        tracedSeqSuite("Some other tests")(someOtherTests)
-    }
+  override def suitesStream: Stream[IO, Test] =
+    Stream
+      .resource(makeEntryPoint.flatMap(_.root("ExampleTracedSuite")))
+      .flatMap { implicit rootSpan =>
+        val service = SomeTracedService.apply[App]
+        tracedParSuite("Service tests")(serviceTests(service)) ++
+          tracedSeqSuite("Some other tests")(someOtherTests)
+      }
 
   def serviceTests(service: SomeTracedService[App]): List[TracedTest] = List(
     tracedTest("SomeTracedService.foo test") { span =>
-      service.translate(provideSpan(span)).foo
-        .as(success) 
+      service
+        .translate(provideSpan(span))
+        .foo
+        .as(success)
     },
     tracedTest("SomeTracedService.bar test") { span =>
-      service.translate(provideSpan(span)).bar
-        .as(success) 
+      service
+        .translate(provideSpan(span))
+        .bar
+        .as(success)
     }
   )
 
@@ -41,8 +47,9 @@ object ExampleTracedSuite extends Suite {
     tracedTest("some other test 1") { _ =>
       expect(1 === 1).pure[IO]
     },
-    tracedTest("some other test 2") { span => 
-      span.put("app.important.info" -> 42)
+    tracedTest("some other test 2") { span =>
+      span
+        .put("app.important.info" -> 42)
         .as(expect(2 === 2))
     }
   )
@@ -53,14 +60,14 @@ object ExampleTracedSuite extends Suite {
       case IntegrationTestConfig.CI(hcKey) =>
         natchez.honeycomb.Honeycomb.entryPoint[IO](
           service = "weaver-test-extra-tests"
-         ) { builder =>
+        ) { builder =>
           IO.delay {
             builder
               .setDataset("weaver-test-extra-tests")
               .setWriteKey(hcKey)
               .setGlobalFields(
                 Map(
-                  "service_name" -> "weaver-test-extra-tests",
+                  "service_name" -> "weaver-test-extra-tests"
                 ).asJava
               )
               .build
@@ -75,7 +82,7 @@ object ExampleTracedSuite extends Suite {
 
   def provideSpan(span: Span[IO]): App ~> IO = {
     def provide[A](x: App[A]): IO[A] = x.run(span)
-    FunctionK.lift(provide)
+    FunctionK.liftFunction(provide)
   }
 
 }

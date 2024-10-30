@@ -7,12 +7,12 @@ sealed trait IntegrationTestConfig
 object IntegrationTestConfig {
 
   final case class CI(
-    honeycombWriteKey: String,
-  )  extends IntegrationTestConfig {
+      honeycombWriteKey: String
+  ) extends IntegrationTestConfig {
     override def toString = "IntegrationTestConfig.CI()"
   }
 
-  final case object NotCI extends IntegrationTestConfig
+  case object NotCI extends IntegrationTestConfig
 
   def load: IO[IntegrationTestConfig] = for {
     isCi <- IO.delay {
@@ -23,7 +23,7 @@ object IntegrationTestConfig {
     }
   } yield hcKey.fold[IntegrationTestConfig] {
     IntegrationTestConfig.NotCI
-  } { hcKey => 
+  } { hcKey =>
     if (isCi) {
       IntegrationTestConfig.CI(hcKey)
     } else {

@@ -12,10 +12,13 @@ package object traced {
 
   type TracedTest = ReaderT[IO, Span[IO], Test]
 
-  def tracedTest(name: String)(run: Span[IO] => IO[Expectations])(implicit loc: SourceLocation): TracedTest =
+  def tracedTest(name: String)(
+      run: Span[IO] => IO[Expectations]
+  )(implicit loc: SourceLocation): TracedTest =
     ReaderT { parent =>
-      parent.span(name).use{ span =>
-        weaver.pure.test(name)(run(span))
+      parent.span(name).use { span =>
+        weaver.pure
+          .test(name)(run(span))
           .flatTap { test =>
             traceExpectationFailures(span, test)
           }
@@ -28,18 +31,24 @@ package object traced {
       _ => IO.unit
     )
 
-  def tracedParSuite(name: String)(suite: List[TracedTest])(implicit rootSpan: Span[IO]): Stream[IO,Test] =
+  def tracedParSuite(name: String)(suite: List[TracedTest])(implicit
+      rootSpan: Span[IO]
+  ): Stream[IO, Test] =
     tracedSuite(weaver.pure.parSuite)(name)(suite)(rootSpan)
-  
-  def tracedSeqSuite(name: String)(suite: List[TracedTest])(implicit rootSpan: Span[IO]): Stream[IO,Test] =
+
+  def tracedSeqSuite(name: String)(suite: List[TracedTest])(implicit
+      rootSpan: Span[IO]
+  ): Stream[IO, Test] =
     tracedSuite(weaver.pure.seqSuite)(name)(suite)(rootSpan)
-    
-  def tracedSuite(toStream: List[IO[Test]] => Stream[IO, Test])(name: String)(suite: List[TracedTest]): Span[IO] => Stream[IO,Test] =
-    parent => 
+
+  def tracedSuite(
+      toStream: List[IO[Test]] => Stream[IO, Test]
+  )(name: String)(suite: List[TracedTest]): Span[IO] => Stream[IO, Test] =
+    parent =>
       Stream.resource(parent.span(name)).flatMap { suiteSpan =>
         val testsWithSpan = suite.map(_.run(suiteSpan))
         toStream(testsWithSpan)
 
       }
-   
+
 }
