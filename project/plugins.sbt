@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.24.0")
+addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.25.0")
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2")
 // scoverage plugin not yet supporting scala 2.13.15
 // addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.12")
