@@ -4,9 +4,9 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-ThisBuild / scalaVersion := "2.13.15"
-ThisBuild / crossScalaVersions := Seq("2.13.15", "2.12.20", "3.3.4")
-ThisBuild / githubWorkflowScalaVersions := Seq("2.13.15", "2.12.20", "3.3.4")
+ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / crossScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
+ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
@@ -15,14 +15,15 @@ ThisBuild / githubWorkflowBuild := Seq(
     commands = List("scalafmtCheck")
   ),
   WorkflowStep.Sbt(
-    // scoverage plugin not yet supporting scala 2.13.15
+    // scoverage plugin not yet supporting scala 2.13.16
     // commands = List("coverage", "test"),
     commands = List("test"),
     env = Map(
       "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
     )
   )
-  // scoverage plugin not yet supporting scala 2.13.15
+
+  // scoverage plugin not yet supporting scala 2.13.16
   // WorkflowStep.Sbt(List("coverageReport")),
 )
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
@@ -35,7 +36,7 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 
 ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-// scoverage plugin not yet supporting scala 2.13.15
+// scoverage plugin not yet supporting scala 2.13.16
 // ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
 //   commands = List("bash <(curl -s https://codecov.io/bash)")
 // ))
@@ -55,8 +56,8 @@ ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross wi
 
 val weaverVersion = "0.8.4"
 
-val natchezVersion = "0.3.7"
-val fs2Version = "3.11.0"
+val natchezVersion = "0.3.8"
+val fs2Version = "3.12.0"
 
 libraryDependencies ++= Seq(
   "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,
