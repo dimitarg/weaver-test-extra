@@ -57,7 +57,7 @@ ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross wi
 val weaverVersion = "0.8.4"
 
 val natchezVersion = "0.3.7"
-val fs2Version = "3.11.0"
+val fs2Version = "3.12.0"
 
 libraryDependencies ++= Seq(
   "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,
