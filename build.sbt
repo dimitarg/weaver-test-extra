@@ -4,6 +4,7 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
+
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
 ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
@@ -54,14 +55,14 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-val weaverVersion = "0.8.4"
+val weaverVersion = "0.9.0"
 
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.0"
 
 libraryDependencies ++= Seq(
-  "com.disneystreaming" %% "weaver-scalacheck" % weaverVersion,
-  "com.disneystreaming" %% "weaver-cats" % weaverVersion,
+  "org.typelevel" %% "weaver-scalacheck" % weaverVersion,
+  "org.typelevel" %% "weaver-cats" % weaverVersion,
   "org.tpolecat" %% "natchez-core" % natchezVersion,
   "org.tpolecat" %% "natchez-noop" % natchezVersion % "test",
   "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
