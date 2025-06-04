@@ -6,8 +6,8 @@ ThisBuild / organization := "io.github.dimitarg"
 
 
 ThisBuild / scalaVersion := "2.13.16"
-ThisBuild / crossScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
-ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
+ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
+ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "3.3.6")
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
