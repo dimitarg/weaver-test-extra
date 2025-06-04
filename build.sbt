@@ -5,8 +5,8 @@ name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
 ThisBuild / scalaVersion := "2.13.16"
-ThisBuild / crossScalaVersions := Seq("2.13.16", "2.12.20", "3.3.4")
-ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "2.12.20", "3.3.4")
+ThisBuild / crossScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
+ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "2.12.20", "3.3.6")
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
@@ -22,6 +22,7 @@ ThisBuild / githubWorkflowBuild := Seq(
       "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
     )
   )
+
   // scoverage plugin not yet supporting scala 2.13.16
   // WorkflowStep.Sbt(List("coverageReport")),
 )
