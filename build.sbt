@@ -4,7 +4,6 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "3.3.6")
