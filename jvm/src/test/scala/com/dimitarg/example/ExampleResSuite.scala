@@ -1,9 +1,5 @@
 package com.dimitarg.example
 
-import java.util.concurrent.Executors
-
-import scala.concurrent.ExecutionContext
-
 import cats.effect.{IO, Resource}
 import fs2.Stream
 import weaver.pure._
@@ -14,19 +10,16 @@ object ExampleResSuite extends Suite {
   final case class TextFile(lines: List[String])
 
   // describe how to acquire shared resource
-  val sharedResource: Resource[IO, TextFile] = for {
-    _ <- Resource.make(
-      IO(ExecutionContext.fromExecutorService(Executors.newCachedThreadPool()))
-    )(x => IO(x.shutdown))
-    xs = fs2.io.readInputStream(
+  val sharedResource: Resource[IO, TextFile] = {
+    val xs = fs2.io.readInputStream(
       IO(getClass().getResourceAsStream("/foo.txt")),
       1024,
       closeAfterUse = true
     )
-    lines <- Resource.eval(
+    Resource.eval(
       xs.through(fs2.text.utf8.decode).through(fs2.text.lines).compile.toList
-    )
-  } yield TextFile(lines)
+    ).map(TextFile(_))
+  }
 
   // suite which uses shared resource
   val suites: TextFile => Stream[IO, Test] = textFile =>
