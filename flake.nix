@@ -15,6 +15,7 @@
           pkgs.jdk21
           pkgs.coursier
           pkgs.sbt
+          pkgs.nodejs
         ]; };
       }
     );
