@@ -83,6 +83,35 @@ lazy val root = crossProject(JSPlatform, JVMPlatform)
       }
     },
 
+    releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+    usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A"),
+    sonatypeCredentialHost := sonatypeCentralHost,
+    sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com")),
+    developers := List(
+      Developer(
+        id = "dimitarg",
+        name = "Dimitar Georgiev",
+        email = "dimitar.georgiev.bg@gmail.com",
+        url = url("https://dimitarg.github.io/")
+      )
+    ),
+    releaseCrossBuild := true, // true if you cross-build the project for multiple Scala versions
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      // For non cross-build projects, use releaseStepCommand("publishSigned")
+      releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommand("sonatypeBundleRelease"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    ),
+
 
   )
   .jsSettings(
@@ -106,40 +135,15 @@ ThisBuild / scalacOptions ++= {
   }
 }
 
-releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A")
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 
-sonatypeCredentialHost := sonatypeCentralHost
 
 ThisBuild / publishMavenStyle := true
 
-sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com"))
 
-developers := List(
-  Developer(
-    id = "dimitarg",
-    name = "Dimitar Georgiev",
-    email = "dimitar.georgiev.bg@gmail.com",
-    url = url("https://dimitarg.github.io/")
-  )
-)
 
-releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  // For non cross-build projects, use releaseStepCommand("publishSigned")
-  releaseStepCommandAndRemaining("+publishSigned"),
-  releaseStepCommand("sonatypeBundleRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
+
+
+
