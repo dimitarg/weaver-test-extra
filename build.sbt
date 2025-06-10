@@ -143,7 +143,7 @@ ThisBuild / scalacOptions ++= {
 
 
 
-ThisBuild / publishTo := sonatypePublishToBundle.value
+ThisBuild / publishTo := localStaging.value
 
 
 ThisBuild / publishMavenStyle := true
