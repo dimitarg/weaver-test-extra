@@ -4,7 +4,6 @@ import ReleaseTransformations._
 name := "weaver-test-extra"
 ThisBuild / organization := "io.github.dimitarg"
 
-
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 ThisBuild / githubWorkflowScalaVersions := Seq("2.13.16", "3.3.6")
@@ -58,34 +57,36 @@ ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross wi
 ThisBuild / releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
-ThisBuild / sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com"))
+ThisBuild / sonatypeProjectHosting := Some(
+  GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com")
+)
 ThisBuild / developers := List(
-      Developer(
-        id = "dimitarg",
-        name = "Dimitar Georgiev",
-        email = "dimitar.georgiev.bg@gmail.com",
-        url = url("https://dimitarg.github.io/")
-      )
-    )
-
-ThisBuild / releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
-ThisBuild /releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      // For non cross-build projects, use releaseStepCommand("publishSigned")
-      releaseStepCommandAndRemaining("+publishSigned"),
-      releaseStepCommand("sonatypeBundleRelease"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
+  Developer(
+    id = "dimitarg",
+    name = "Dimitar Georgiev",
+    email = "dimitar.georgiev.bg@gmail.com",
+    url = url("https://dimitarg.github.io/")
+  )
 )
 
-val weaverVersion = "0.9.0"
+ThisBuild / releaseCrossBuild := true // true if you cross-build the project for multiple Scala versions
+ThisBuild / releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  // For non cross-build projects, use releaseStepCommand("publishSigned")
+  releaseStepCommandAndRemaining("+publishSigned"),
+  releaseStepCommand("sonatypeBundleRelease"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
+
+val weaverVersion = "0.9.2"
 
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.0"
@@ -113,26 +114,16 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
           Nil
       }
     },
-    usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A"),
-
+    usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A")
   )
   .jsSettings(
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
     )
   )
-  
 
-
-  lazy val root = (project in file("."))
-    .aggregate(core.jvm, core.js)
-  
-
-
-
-
-
-
+lazy val root = (project in file("."))
+  .aggregate(core.jvm, core.js)
 
 ThisBuild / scalacOptions ++= {
   CrossVersion.partialVersion(scalaVersion.value) match {
@@ -141,15 +132,6 @@ ThisBuild / scalacOptions ++= {
   }
 }
 
-
-
 ThisBuild / publishTo := localStaging.value
 
-
 ThisBuild / publishMavenStyle := true
-
-
-
-
-
-
