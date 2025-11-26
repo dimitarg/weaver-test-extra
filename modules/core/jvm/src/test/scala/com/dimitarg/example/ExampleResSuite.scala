@@ -16,9 +16,11 @@ object ExampleResSuite extends Suite {
       1024,
       closeAfterUse = true
     )
-    Resource.eval(
-      xs.through(fs2.text.utf8.decode).through(fs2.text.lines).compile.toList
-    ).map(TextFile(_))
+    Resource
+      .eval(
+        xs.through(fs2.text.utf8.decode).through(fs2.text.lines).compile.toList
+      )
+      .map(TextFile(_))
   }
 
   // suite which uses shared resource
