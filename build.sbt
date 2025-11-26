@@ -55,8 +55,6 @@ ThisBuild / githubWorkflowPublishPreamble := Seq(
 
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
-ThisBuild / releasePublishArtifactsAction := PgpKeys.publishSigned.value
-
 ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 ThisBuild / sonatypeProjectHosting := Some(GitHubHosting("dimitarg", "weaver-test-extra", "dimitar.georgiev.bg@gmail.com"))
 ThisBuild / developers := List(
@@ -113,9 +111,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
           Nil
       }
     },
-    usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A"),
 
   )
+  .settings(publishAndReleaseSettings)
   .jsSettings(
     libraryDependencies ++= Seq(
       "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
@@ -126,6 +124,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
 
   lazy val root = (project in file("."))
     .aggregate(core.jvm, core.js)
+    .settings(publishAndReleaseSettings)
   
 
 
@@ -142,11 +141,17 @@ ThisBuild / scalacOptions ++= {
 }
 
 
+val publishAndReleaseSettings = Seq(
+  publishTo := sonatypePublishToBundle.value,
+  publishMavenStyle := true,
+  usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A"),
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value
+)
 
-ThisBuild / publishTo := sonatypePublishToBundle.value
 
 
-ThisBuild / publishMavenStyle := true
+
+
 
 
 
