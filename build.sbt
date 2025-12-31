@@ -134,12 +134,12 @@ lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 //   .aggregate(core.jvm, core.js)
 //   .settings(publishAndReleaseSettings)
 
-ThisBuild / scalacOptions ++= {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 12 | 13)) => Seq("-Xsource:3-cross", "-P:kind-projector:underscore-placeholders")
-    case _                  => Nil
-  }
-}
+// ThisBuild / scalacOptions ++= {
+//   CrossVersion.partialVersion(scalaVersion.value) match {
+//     case Some((2, 12 | 13)) => Seq("-Xsource:3-cross", "-P:kind-projector:underscore-placeholders")
+//     case _                  => Nil
+//   }
+// }
 
 // val publishAndReleaseSettings = Seq(
 //   publishTo := sonatypePublishToBundle.value,
