@@ -11,7 +11,6 @@ ThisBuild / developers := List(
   tlGitHubDev("dimitarg", "Dimitar Georgiev")
 )
 
-
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 
@@ -32,10 +31,8 @@ ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 //   // WorkflowStep.Sbt(List("coverageReport")),
 // )
 
-
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
-
 
 // ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
 // ThisBuild / githubWorkflowEnv += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
@@ -43,6 +40,8 @@ ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB
 // ThisBuild / githubWorkflowEnv += "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}"
 ThisBuild / githubWorkflowTargetBranches := Seq("master")
 ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branch("master"))
+
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 // ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
@@ -120,30 +119,20 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
         case _ =>
           Nil
       }
-    },
-
+    }
   )
   // .settings(publishAndReleaseSettings)
   .jsSettings(
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0",
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
     )
   )
-  
 
-  lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
+lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 
-
-  // lazy val root = (project in file("."))
-  //   .aggregate(core.jvm, core.js)
-  //   .settings(publishAndReleaseSettings)
-  
-
-
-
-
-
-
+// lazy val root = (project in file("."))
+//   .aggregate(core.jvm, core.js)
+//   .settings(publishAndReleaseSettings)
 
 ThisBuild / scalacOptions ++= {
   CrossVersion.partialVersion(scalaVersion.value) match {
@@ -152,21 +141,9 @@ ThisBuild / scalacOptions ++= {
   }
 }
 
-
 // val publishAndReleaseSettings = Seq(
 //   publishTo := sonatypePublishToBundle.value,
 //   publishMavenStyle := true,
 //   usePgpKeyHex("7A723A868B1FD65C8108ACAF00437AAD7A33298A"),
 //   releasePublishArtifactsAction := PgpKeys.publishSigned.value
 // )
-
-
-
-
-
-
-
-
-
-
-
