@@ -14,41 +14,56 @@ ThisBuild / developers := List(
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 
-// ThisBuild / githubWorkflowBuild := Seq(
-//   WorkflowStep.Sbt(
-//     commands = List("scalafmtCheck")
-//   ),
-//   WorkflowStep.Sbt(
-//     // scoverage plugin not yet supporting scala 2.13.16
-//     // commands = List("coverage", "test"),
-//     commands = List("test"),
-//     env = Map(
-//       "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
-//     )
-//   )
-
-//   // scoverage plugin not yet supporting scala 2.13.16
-//   // WorkflowStep.Sbt(List("coverageReport")),
-// )
 
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
 
-// ThisBuild / githubWorkflowEnv += "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
-// ThisBuild / githubWorkflowEnv += "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}"
-// ThisBuild / githubWorkflowEnv += "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
-// ThisBuild / githubWorkflowEnv += "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}"
 ThisBuild / githubWorkflowTargetBranches := Seq("master")
 ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branch("master"))
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
-// ThisBuild / licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-// scoverage plugin not yet supporting scala 2.13.16
-// ThisBuild / githubWorkflowBuildPostamble := Seq(WorkflowStep.Run(
-//   commands = List("bash <(curl -s https://codecov.io/bash)")
-// ))
+ThisBuild / tlCiHeaderCheck := false
+val weaverVersion = "0.9.0"
+
+val natchezVersion = "0.3.8"
+val fs2Version = "3.12.0"
+
+lazy val core = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .in(file("modules/core"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "weaver-scalacheck" % weaverVersion,
+      "org.typelevel" %%% "weaver-cats" % weaverVersion,
+      "org.tpolecat" %%% "natchez-core" % natchezVersion,
+      "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
+      "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
+      "co.fs2" %%% "fs2-io" % fs2Version % "test"
+    ),
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, n)) =>
+          List(
+            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+          )
+        case _ =>
+          Nil
+      }
+    }
+  )
+  // .settings(publishAndReleaseSettings)
+  .jsSettings(
+    libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
+    )
+  )
+
+lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
+
+// TODO delete all this commented stuff once we've got release working again
 
 // ThisBuild / githubWorkflowPublishPreamble := Seq(
 //   WorkflowStep.Run(
@@ -90,56 +105,6 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 //       commitNextVersion,
 //       pushChanges
 // )
-
-ThisBuild / tlCiHeaderCheck := false
-val weaverVersion = "0.9.0"
-
-val natchezVersion = "0.3.8"
-val fs2Version = "3.12.0"
-
-lazy val core = crossProject(JSPlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .in(file("modules/core"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.typelevel" %%% "weaver-scalacheck" % weaverVersion,
-      "org.typelevel" %%% "weaver-cats" % weaverVersion,
-      "org.tpolecat" %%% "natchez-core" % natchezVersion,
-      "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
-      "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
-      "co.fs2" %%% "fs2-io" % fs2Version % "test"
-    ),
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, n)) =>
-          List(
-            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
-          )
-        case _ =>
-          Nil
-      }
-    }
-  )
-  // .settings(publishAndReleaseSettings)
-  .jsSettings(
-    libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
-    )
-  )
-
-lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
-
-// lazy val root = (project in file("."))
-//   .aggregate(core.jvm, core.js)
-//   .settings(publishAndReleaseSettings)
-
-// ThisBuild / scalacOptions ++= {
-//   CrossVersion.partialVersion(scalaVersion.value) match {
-//     case Some((2, 12 | 13)) => Seq("-Xsource:3-cross", "-P:kind-projector:underscore-placeholders")
-//     case _                  => Nil
-//   }
-// }
 
 // val publishAndReleaseSettings = Seq(
 //   publishTo := sonatypePublishToBundle.value,
