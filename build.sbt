@@ -62,16 +62,16 @@ lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 
 // TODO delete all this commented stuff once we've got release working again
 
-// ThisBuild / githubWorkflowPublishPreamble := Seq(
-//   WorkflowStep.Run(
-//     List(
-//       "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
-//       "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
-//       "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 7A723A868B1FD65C8108ACAF00437AAD7A33298A",
-//       "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
-//     )
-//   )
-// )
+ThisBuild / githubWorkflowPublishPreamble := Seq(
+  WorkflowStep.Run(
+    List(
+      // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
+      // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
+      "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 7A723A868B1FD65C8108ACAF00437AAD7A33298A",
+      "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
+    )
+  )
+)
 
 // ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
