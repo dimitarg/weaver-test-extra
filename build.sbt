@@ -92,6 +92,7 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 //       pushChanges
 // )
 
+ThisBuild / tlCiHeaderCheck := false
 val weaverVersion = "0.9.0"
 
 val natchezVersion = "0.3.8"
