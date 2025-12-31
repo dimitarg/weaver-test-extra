@@ -14,7 +14,6 @@ ThisBuild / developers := List(
 ThisBuild / scalaVersion := "2.13.16"
 ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
 
-
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
 
@@ -22,7 +21,6 @@ ThisBuild / githubWorkflowTargetBranches := Seq("master")
 ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branch("master"))
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
-
 
 ThisBuild / tlCiHeaderCheck := false
 val weaverVersion = "0.9.0"
@@ -54,7 +52,6 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       }
     }
   )
-  // .settings(publishAndReleaseSettings)
   .jsSettings(
     libraryDependencies ++= Seq(
       "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
