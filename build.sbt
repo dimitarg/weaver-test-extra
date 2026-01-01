@@ -45,7 +45,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, n)) =>
           List(
-            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
           )
         case _ =>
           Nil
