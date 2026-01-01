@@ -23,7 +23,7 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / tlCiHeaderCheck := false
-val weaverVersion = "0.9.0"
+val weaverVersion = "0.9.3"
 
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.0"
