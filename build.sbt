@@ -1,3 +1,4 @@
+import sbtcrossproject.CrossProject
 ThisBuild / tlBaseVersion := "0.6" // Our current series x.y
 
 name := "weaver-test-extra"
@@ -29,9 +30,8 @@ val weaverVersion = "0.9.0"
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.0"
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
-  .in(file("modules/core"))
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "weaver-scalacheck" % weaverVersion,
