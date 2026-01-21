@@ -7,7 +7,8 @@ sealed trait IntegrationTestConfig
 object IntegrationTestConfig {
 
   final case class CI(
-      honeycombWriteKey: String
+      honeycombWriteKey: String,
+      serviceName: String
   ) extends IntegrationTestConfig {
     override def toString = "IntegrationTestConfig.CI()"
   }
@@ -25,7 +26,7 @@ object IntegrationTestConfig {
     IntegrationTestConfig.NotCI
   } { hcKey =>
     if (isCi) {
-      IntegrationTestConfig.CI(hcKey)
+      IntegrationTestConfig.CI(hcKey, serviceName = "weaver-test-extra-tests")
     } else {
       IntegrationTestConfig.NotCI
     }

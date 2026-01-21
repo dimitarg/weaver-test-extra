@@ -3,6 +3,8 @@ package weaver
 import cats.implicits._
 import cats.effect.IO
 import fs2.Stream
+import cats.Parallel
+import cats.Applicative
 
 package object pure extends Expectations.Helpers {
 
@@ -19,9 +21,9 @@ package object pure extends Expectations.Helpers {
       loc: SourceLocation
   ): Test = Test(name, run)
 
-  def parSuite(tests: List[IO[Test]]): Stream[IO, Test] =
+  def parSuite[F[_]: Parallel](tests: List[F[Test]]): Stream[F, Test] =
     Stream.evals(tests.parTraverse(identity))
 
-  def seqSuite(tests: List[IO[Test]]): Stream[IO, Test] =
-    Stream.evals(tests.sequence)
+  def seqSuite[F[_]: Applicative](tests: List[F[Test]]): Stream[F, Test] =
+    Stream.evals(tests.sequence[F, Test])
 }

@@ -26,9 +26,10 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 ThisBuild / tlCiHeaderCheck := false
 
 val weaverVersion = "0.9.3"
-
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.2"
+val otel4sVersion = "0.14.0"
+val openTelemetryVersion = "1.58.0"
 
 lazy val commonSettings = Seq(
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
@@ -60,13 +61,19 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
     )
   )
 
+// in principle this can be made cross-platform e.g. by using the otel scala sdk, but out of scope for now.
 lazy val traced = (project in file("modules/traced"))
   .dependsOn(core.jvm)
   .settings(
     libraryDependencies ++= Seq(
-      "org.tpolecat" %%% "natchez-core" % natchezVersion,
-      "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
-      "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test"
+      "org.typelevel" %% "otel4s-core" % otel4sVersion,
+
+      "org.typelevel" %% "otel4s-oteljava" % otel4sVersion,
+      "io.opentelemetry" % "opentelemetry-exporter-otlp" % openTelemetryVersion % Test,
+      "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % openTelemetryVersion % Test
+      // "org.tpolecat" %%% "natchez-core" % natchezVersion,
+      // "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
+      // "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test"
     )
   )
 
