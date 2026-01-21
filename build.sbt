@@ -28,7 +28,7 @@ ThisBuild / tlCiHeaderCheck := false
 val weaverVersion = "0.9.0"
 
 val natchezVersion = "0.3.8"
-val fs2Version = "3.12.0"
+val fs2Version = "3.12.2"
 
 lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
