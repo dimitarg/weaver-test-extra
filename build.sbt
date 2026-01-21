@@ -23,6 +23,7 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / tlCiHeaderCheck := false
+
 val weaverVersion = "0.9.0"
 
 val natchezVersion = "0.3.8"
@@ -62,20 +63,20 @@ lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 
 // TODO delete all this commented stuff once we've got release working again
 
-ThisBuild / githubWorkflowPublishPreamble := Seq(
-  WorkflowStep.Run(
-    commands = List(
-      // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
-      // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
-      "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 00437AAD7A33298A",
-      "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
-    ),
-    env = Map(
-      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
-      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
-    )
-  )
-)
+// ThisBuild / githubWorkflowPublishPreamble := Seq(
+//   WorkflowStep.Run(
+//     commands = List(
+//       // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
+//       // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
+//       "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 00437AAD7A33298A",
+//       "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
+//     ),
+//     env = Map(
+//       "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+//       "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
+//     )
+//   )
+// )
 
 // ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
