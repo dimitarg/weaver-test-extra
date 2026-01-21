@@ -1,3 +1,4 @@
+import sbtcrossproject.CrossProject
 ThisBuild / tlBaseVersion := "0.6" // Our current series x.y
 
 name := "weaver-test-extra"
@@ -11,8 +12,8 @@ ThisBuild / developers := List(
   tlGitHubDev("dimitarg", "Dimitar Georgiev")
 )
 
-ThisBuild / scalaVersion := "2.13.16"
-ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
+ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / crossScalaVersions := Seq("2.13.18", "3.3.7")
 
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
@@ -23,14 +24,14 @@ ThisBuild / githubWorkflowPublishTargetBranches += RefPredicate.Equals(Ref.Branc
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / tlCiHeaderCheck := false
+
 val weaverVersion = "0.9.3"
 
 val natchezVersion = "0.3.8"
-val fs2Version = "3.12.0"
+val fs2Version = "3.12.2"
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
-  .in(file("modules/core"))
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "weaver-scalacheck" % weaverVersion,
@@ -45,7 +46,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, n)) =>
           List(
-            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
           )
         case _ =>
           Nil
@@ -62,16 +63,20 @@ lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 
 // TODO delete all this commented stuff once we've got release working again
 
-ThisBuild / githubWorkflowPublishPreamble := Seq(
-  WorkflowStep.Run(
-    List(
-      // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
-      // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
-      "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 00437AAD7A33298A",
-      "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
-    )
-  )
-)
+// ThisBuild / githubWorkflowPublishPreamble := Seq(
+//   WorkflowStep.Run(
+//     commands = List(
+//       // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
+//       // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
+//       "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 00437AAD7A33298A",
+//       "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
+//     ),
+//     env = Map(
+//       "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+//       "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
+//     )
+//   )
+// )
 
 // ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(List("release cross with-defaults")))
 
