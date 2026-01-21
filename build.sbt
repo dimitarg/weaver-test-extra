@@ -12,8 +12,8 @@ ThisBuild / developers := List(
   tlGitHubDev("dimitarg", "Dimitar Georgiev")
 )
 
-ThisBuild / scalaVersion := "2.13.16"
-ThisBuild / crossScalaVersions := Seq("2.13.16", "3.3.6")
+ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / crossScalaVersions := Seq("2.13.18", "3.3.7")
 
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
@@ -25,10 +25,10 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / tlCiHeaderCheck := false
 
-val weaverVersion = "0.9.0"
+val weaverVersion = "0.9.3"
 
 val natchezVersion = "0.3.8"
-val fs2Version = "3.12.0"
+val fs2Version = "3.12.2"
 
 lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -46,7 +46,7 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, n)) =>
           List(
-            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.3" cross CrossVersion.full)
+            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
           )
         case _ =>
           Nil
