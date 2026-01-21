@@ -30,28 +30,29 @@ val weaverVersion = "0.9.3"
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.2"
 
+lazy val commonSettings = Seq(
+  testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
+  libraryDependencies ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) =>
+        List(
+          compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
+        )
+      case _ =>
+        Nil
+    }
+  }
+)
+
 lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "weaver-scalacheck" % weaverVersion,
       "org.typelevel" %%% "weaver-cats" % weaverVersion,
-      "org.tpolecat" %%% "natchez-core" % natchezVersion,
-      "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
-      "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test",
       "co.fs2" %%% "fs2-io" % fs2Version % "test"
-    ),
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, n)) =>
-          List(
-            compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full)
-          )
-        case _ =>
-          Nil
-      }
-    }
+    )
   )
   .jsSettings(
     libraryDependencies ++= Seq(
@@ -59,7 +60,17 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
     )
   )
 
-lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
+lazy val traced = (project in file("modules/traced"))
+  .dependsOn(core.jvm)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.tpolecat" %%% "natchez-core" % natchezVersion,
+      "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
+      "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test"
+    )
+  )
+
+lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js, traced)
 
 // TODO delete all this commented stuff once we've got release working again
 
