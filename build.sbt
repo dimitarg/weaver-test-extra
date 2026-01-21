@@ -64,11 +64,15 @@ lazy val root = tlCrossRootProject.aggregate(core.jvm, core.js)
 
 ThisBuild / githubWorkflowPublishPreamble := Seq(
   WorkflowStep.Run(
-    List(
+    commands = List(
       // "git config user.name \"Github Actions (dimitarg/weaver-test-extra)\"",
       // "git config user.email \"dimitar.georgiev.bg@gmail.com\"",
       "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 00437AAD7A33298A",
       "echo $PGP_SECRET | base64 --decode --ignore-garbage | gpg --batch --passphrase $PGP_PASSPHRASE --import"
+    ),
+    env = Map(
+      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}"
     )
   )
 )
