@@ -66,6 +66,7 @@ lazy val traced = (project in file("modules/traced"))
   .dependsOn(core.jvm)
   .settings(commonSettings)
   .settings(
+    name := "weaver-test-extra-otel4s",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "otel4s-core" % otel4sVersion,
 
