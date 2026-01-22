@@ -64,6 +64,7 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
 // in principle this can be made cross-platform e.g. by using the otel scala sdk, but out of scope for now.
 lazy val traced = (project in file("modules/traced"))
   .dependsOn(core.jvm)
+  .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel" %% "otel4s-core" % otel4sVersion,
@@ -71,9 +72,6 @@ lazy val traced = (project in file("modules/traced"))
       "org.typelevel" %% "otel4s-oteljava" % otel4sVersion,
       "io.opentelemetry" % "opentelemetry-exporter-otlp" % openTelemetryVersion % Test,
       "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % openTelemetryVersion % Test
-      // "org.tpolecat" %%% "natchez-core" % natchezVersion,
-      // "org.tpolecat" %%% "natchez-noop" % natchezVersion % "test",
-      // "org.tpolecat" %% "natchez-honeycomb" % natchezVersion % "test"
     )
   )
 

@@ -319,7 +319,6 @@ package com.dimitarg.example.traced
 import scala.jdk.CollectionConverters._
 
 import scala.concurrent.duration._
-import cats.~>
 import cats.implicits._
 import cats.effect.{IO, Temporal, Resource}
 import fs2._
@@ -431,17 +430,6 @@ object ExampleTracedSuite extends Suite {
 sealed trait SomeTracedService[F[_]] {
   val foo: F[Unit]
   val bar: F[Unit]
-
-  def translate[G[_]](fg: F ~> G): SomeTracedService[G] = {
-    val underlying = this
-
-    new SomeTracedService[G] {
-
-      override val foo: G[Unit] = fg(underlying.foo)
-
-      override val bar: G[Unit] = fg(underlying.bar)
-    }
-  }
 }
 
 object SomeTracedService {
