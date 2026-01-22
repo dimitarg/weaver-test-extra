@@ -395,7 +395,7 @@ object ExampleTracedSuite extends Suite {
             "otel.exporter.otlp.headers" -> renderAttributes(otlpConfig.headers),
             // default configuration of otel uses BatchSpanProcessor which keeps spans in a bounded queue
             // the default is 2048 elements which will cause span loss
-            "otel.bsp.max.queue.size" -> 1073741824.show // 2 ^ 30
+            "otel.bsp.max.queue.size" -> 67108864.show // 2 ^ 26
 
           ).asJava
         }
