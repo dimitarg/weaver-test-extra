@@ -1,5 +1,5 @@
 import sbtcrossproject.CrossProject
-ThisBuild / tlBaseVersion := "0.6" // Our current series x.y
+ThisBuild / tlBaseVersion := "0.7" // Our current series x.y
 
 name := "weaver-test-extra"
 

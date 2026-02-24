@@ -9,3 +9,4 @@ metals.sbt
 .vscode
 .bsp/
 .direnv/
+.mcp.json

@@ -4,6 +4,7 @@ import cats.effect.IO
 import fs2.Stream
 import weaver._
 import util._
+import cats.effect.unsafe.IORuntime
 
 trait Suite extends EffectSuite[IO] with BaseCatsSuite with Expectations.Helpers {
 
@@ -13,7 +14,12 @@ trait Suite extends EffectSuite[IO] with BaseCatsSuite with Expectations.Helpers
     suitesStream.map(toTestOutcome)
   }
 
-  override implicit protected def effectCompat: EffectCompat[IO] = CatsUnsafeRun
+  implicit val theIORuntime: IORuntime = cats.effect.unsafe.IORuntime.global
+
+  override implicit protected val effectCompat: EffectCompat[IO] = new CustomCatsUnsafeRun {
+
+    override implicit val ioRuntime: IORuntime = theIORuntime
+  }
 
   override def getSuite: EffectSuite[IO] = this
 }
