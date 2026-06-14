@@ -57,7 +57,7 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
   )
   .jsSettings(
     libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.6.0"
+      "io.github.cquiroz" %%% "scala-java-time" % "2.7.0"
     )
   )
 
