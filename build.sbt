@@ -29,7 +29,7 @@ val weaverVersion = "0.9.3"
 val natchezVersion = "0.3.8"
 val fs2Version = "3.12.2"
 val otel4sVersion = "0.14.0"
-val openTelemetryVersion = "1.58.0"
+val openTelemetryVersion = "1.64.0"
 
 lazy val commonSettings = Seq(
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
