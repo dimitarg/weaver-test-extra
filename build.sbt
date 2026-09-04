@@ -12,8 +12,8 @@ ThisBuild / developers := List(
   tlGitHubDev("dimitarg", "Dimitar Georgiev")
 )
 
-ThisBuild / scalaVersion := "2.13.18"
-ThisBuild / crossScalaVersions := Seq("2.13.18", "3.3.7")
+ThisBuild / scalaVersion := "3.9.0"
+ThisBuild / crossScalaVersions := Seq("3.9.0", "3.3.7")
 
 ThisBuild / githubWorkflowEnv += "CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}"
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
