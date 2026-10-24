@@ -16,7 +16,6 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   HONEYCOMB_WRITE_KEY: ${{ secrets.HONEYCOMB_WRITE_KEY }}
 
 

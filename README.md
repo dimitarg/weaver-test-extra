@@ -1,4 +1,3 @@
- [![Code Coverage](https://codecov.io/gh/dimitarg/weaver-test-extra/branch/master/graph/badge.svg?token=CJ7FXTIAPX)](https://codecov.io/gh/dimitarg/weaver-test-extra)
  ![Build status](https://github.com/dimitarg/weaver-test-extra/workflows/Continuous%20Integration/badge.svg?branch=master)
 
 
