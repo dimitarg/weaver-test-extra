@@ -20,6 +20,4 @@ trait Suite extends EffectSuite[IO] with BaseCatsSuite with Expectations.Helpers
 
     override implicit val ioRuntime: IORuntime = theIORuntime
   }
-
-  override def getSuite: EffectSuite[IO] = this
 }
