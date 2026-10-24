@@ -13,7 +13,7 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / scalaVersion := "2.13.18"
-ThisBuild / crossScalaVersions := Seq("2.13.18", "3.3.9")
+ThisBuild / crossScalaVersions := Seq("2.13.18", "3.9.0")
 
 ThisBuild / githubWorkflowEnv += "HONEYCOMB_WRITE_KEY" -> "${{ secrets.HONEYCOMB_WRITE_KEY }}"
 
