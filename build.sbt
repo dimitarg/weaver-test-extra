@@ -56,7 +56,7 @@ lazy val core = CrossProject("weaver-test-extra", file("modules/core"))(JSPlatfo
   .jsSettings(
     libraryDependencies ++= Seq(
       // 2.8.0+ is built with Scala 3.9 and breaks our Scala 3.3 LTS build
-      "io.github.cquiroz" %%% "scala-java-time" % "2.7.0"
+      "io.github.cquiroz" %%% "scala-java-time" % "2.9.0"
     )
   )
 
