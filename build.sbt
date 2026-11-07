@@ -27,7 +27,7 @@ ThisBuild / tlCiHeaderCheck := false
 val weaverVersion = "0.13.0"
 val fs2Version = "3.14.0"
 val otel4sVersion = "1.1.0"
-val openTelemetryVersion = "1.67.0"
+val openTelemetryVersion = "1.68.0"
 
 lazy val commonSettings = Seq(
   testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
